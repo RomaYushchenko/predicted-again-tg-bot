@@ -181,23 +181,6 @@ public class BotConfiguration {
     }
 
     /**
-     * Creates NotificationService bean for managing user notifications.
-     *
-     * @param dailyPredictionService service for daily predictions
-     * @param userService service for user management
-     * @param messageSender service for sending messages
-     * @param taskScheduler scheduler for notification tasks
-     * @return configured NotificationService instance
-     */
-    @Bean
-    public NotificationService notificationService(DailyPredictionService dailyPredictionService,
-                                                UserService userService,
-                                                MessageSender messageSender,
-                                                TaskScheduler taskScheduler) {
-        return new NotificationServiceImpl(dailyPredictionService, userService, messageSender, taskScheduler);
-    }
-
-    /**
      * Creates PredictionService bean for generating predictions.
      *
      * @param userService service for user management

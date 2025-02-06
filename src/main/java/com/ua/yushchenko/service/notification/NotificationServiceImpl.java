@@ -31,13 +31,20 @@ public class NotificationServiceImpl implements NotificationService {
     private final UserService userService;
     private final MessageSender messageSender;
     private final TaskScheduler taskScheduler;
+    
+    // Використовуємо один глобальний замок для синхронізації
     private final Lock notificationLock = new ReentrantLock();
-    private final Map<Long, LocalTime> lastNotificationTime = new ConcurrentHashMap<>();
+    
+    // Зберігаємо час останнього сповіщення для кожного користувача
+    private final Map<Long, LocalTime> lastNotificationTimes = new ConcurrentHashMap<>();
+    
+    // Зберігаємо останню оброблену хвилину
     private volatile LocalTime lastProcessedMinute;
 
     @Override
     @Scheduled(cron = "0 * * * * *") // Кожну хвилину
     public void sendNotifications() throws TelegramApiException {
+        // Спроба отримати замок без блокування
         if (!notificationLock.tryLock()) {
             log.debug("Notification task is already running");
             return;
@@ -65,9 +72,11 @@ public class NotificationServiceImpl implements NotificationService {
             for (Long chatId : chatsToNotify) {
                 try {
                     // Перевіряємо час останнього сповіщення
-                    LocalTime lastTime = lastNotificationTime.get(chatId);
-                    if (lastTime != null && lastTime.equals(currentTime)) {
-                        log.debug("Notification for chat {} at {} was already sent", chatId, currentTime);
+                    LocalTime lastNotificationTime = lastNotificationTimes.get(chatId);
+                    if (lastNotificationTime != null && 
+                        Math.abs(ChronoUnit.MINUTES.between(currentTime, lastNotificationTime)) < 2) {
+                        log.debug("Skipping notification for chat {} as last notification was at {}", 
+                                chatId, lastNotificationTime);
                         continue;
                     }
 
@@ -78,18 +87,28 @@ public class NotificationServiceImpl implements NotificationService {
                     }
 
                     sendDailyPrediction(chatId);
-                    lastNotificationTime.put(chatId, currentTime);
+                    lastNotificationTimes.put(chatId, currentTime);
                     log.info("Successfully sent notification to chat {}", chatId);
+                    
                 } catch (Exception e) {
                     log.error("Failed to send notification to chat {}: {}", chatId, e.getMessage());
                 }
             }
 
+            // Очищаємо старі записи (старші за 2 години)
+            cleanupOldNotifications(currentTime);
+            
             // Зберігаємо останню оброблену хвилину
             lastProcessedMinute = currentTime;
+            
         } finally {
             notificationLock.unlock();
         }
+    }
+
+    private void cleanupOldNotifications(LocalTime currentTime) {
+        lastNotificationTimes.entrySet().removeIf(entry -> 
+            Math.abs(ChronoUnit.MINUTES.between(currentTime, entry.getValue())) > 120);
     }
 
     @Override
@@ -106,13 +125,11 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void startNotificationScheduler() {
-        // Не потрібно додаткового планувальника, оскільки використовуємо @Scheduled
         log.info("Notification scheduler is running via @Scheduled annotation");
     }
 
     @Override
     public void stopNotificationScheduler() {
-        // Не потрібно зупиняти планувальник, оскільки використовуємо @Scheduled
         log.info("Notification scheduler is managed by Spring");
     }
 
@@ -127,7 +144,7 @@ public class NotificationServiceImpl implements NotificationService {
             return false;
         }
 
-        LocalTime currentTime = LocalTime.now().withSecond(0).withNano(0);
+        LocalTime currentTime = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
         return notificationTime.get().equals(currentTime);
     }
 

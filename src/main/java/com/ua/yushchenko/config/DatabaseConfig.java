@@ -27,7 +27,7 @@ public class DatabaseConfig {
     public DataSource dataSource(Dotenv dotenv) {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl(dotenv.get("DB_URL"));
+        dataSource.setUrl(dotenv.get("DATABASE_URL"));
         dataSource.setUsername(dotenv.get("DB_USERNAME"));
         dataSource.setPassword(dotenv.get("DB_PASSWORD"));
         return dataSource;

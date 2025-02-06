@@ -20,7 +20,9 @@ Predicted Again - це Telegram бот для щоденних та швидки
 - Mockito
 - Liquibase (міграції БД)
 - Telegram Bot API
-- Docker (опціонально)
+- Docker
+- GitHub Actions
+- Railway Platform
 
 ## Структура проекту
 ```
@@ -46,52 +48,84 @@ src/
 - `/settings` - Налаштування сповіщень
 - `/toggle` - Увімкнути/вимкнути сповіщення
 
-## Налаштування проекту
+## Деплой на Railway
 
 ### Передумови
-- JDK 17+
-- Maven 3.8+
-- PostgreSQL 14+
+1. Створіть акаунт на [Railway](https://railway.app/)
+2. Встановіть [Railway CLI](https://docs.railway.app/develop/cli)
+3. Створіть новий проект на Railway
+4. Створіть PostgreSQL базу даних в проекті
 
-### Конфігурація
-1. Створіть базу даних PostgreSQL
-2. Налаштуйте `application.properties`:
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/your_db
-spring.datasource.username=your_username
-spring.datasource.password=your_password
-bot.token=your_telegram_bot_token
-bot.username=your_bot_username
+### Налаштування змінних середовища
+В налаштуваннях проекту на Railway додайте наступні змінні:
+```
+BOT_NAME=your_bot_name
+BOT_TOKEN=your_bot_token
+DATABASE_URL=postgresql://user:password@host:5432/database
+PORT=8080
+SPRING_PROFILES_ACTIVE=prod
 ```
 
-### Запуск
+### Локальний запуск з Docker
 ```bash
-./mvnw spring-boot:run
+# Збірка образу
+docker build -t predicted-again-bot .
+
+# Запуск контейнера
+docker run -p 8080:8080 \
+  --env-file .env \
+  predicted-again-bot
 ```
 
-### Тестування
+### Деплой через Railway CLI
 ```bash
-./mvnw test
+# Логін в Railway
+railway login
+
+# Ініціалізація проекту
+railway init
+
+# Прив'язка до існуючого проекту
+railway link
+
+# Деплой
+railway up
 ```
+
+### Автоматичний деплой
+1. Додайте в GitHub Secrets наступні змінні:
+   - `RAILWAY_TOKEN` - токен доступу Railway
+   - `RAILWAY_SERVICE_NAME` - назва сервісу в Railway
+
+2. Push в main гілку автоматично запустить деплой
+
+### Моніторинг
+- Статус бота: `https://your-app-url/actuator/health`
+- Метрики: `https://your-app-url/actuator/metrics`
+- Логи доступні в Railway Dashboard
 
 ## Особливості реалізації
 - Використання патерну Command для обробки команд
 - Асинхронна обробка сповіщень
-- Кешування передбачень
+- Кешування передбачень через Caffeine
 - Оптимізована робота з базою даних
 - Обробка помилок та логування
 - Повне покриття тестами
+- Docker контейнеризація
+- CI/CD через GitHub Actions
 
 ## Безпека
 - Валідація вхідних даних
 - Захист від SQL-ін'єкцій (через JPA)
 - Безпечне зберігання конфігураційних даних
 - Обмеження доступу до API
+- Безпечна обробка змінних середовища
 
 ## Моніторинг
 - Логування через SLF4J
 - Spring Boot Actuator для моніторингу
 - Метрики виконання
+- Health check endpoints
 
 ## Розробка
 - Дотримання принципів SOLID

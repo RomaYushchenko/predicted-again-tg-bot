@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <springProfile name="default">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+        <logger name="com.ua.yushchenko" level="DEBUG"/>
+    </springProfile>
+
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+        <logger name="com.ua.yushchenko" level="INFO"/>
+        
+        <!-- Логування важливих подій -->
+        <logger name="com.ua.yushchenko.bot.TelegramBot" level="INFO"/>
+        <logger name="com.ua.yushchenko.service" level="INFO"/>
+        <logger name="com.ua.yushchenko.command" level="INFO"/>
+        
+        <!-- Логування помилок -->
+        <logger name="com.ua.yushchenko.service.telegram" level="ERROR"/>
+        <logger name="com.ua.yushchenko.service.prediction" level="ERROR"/>
+    </springProfile>
+</configuration> 

@@ -34,4 +34,23 @@ build/
 .vscode/
 
 ### Environment Variables ###
-.env 
+.env
+.env.local
+.env.*.local
+
+### Railway ###
+.railway/
+railway.json
+railway.toml
+
+### Logs ###
+*.log
+logs/
+
+### Docker ###
+.docker/
+docker-compose.override.yml
+
+### Application ###
+application-local.properties
+application-dev.properties 

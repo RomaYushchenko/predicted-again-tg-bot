@@ -10,7 +10,7 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 # Install necessary tools
-RUN apk add --no-cache bash curl
+RUN apk add --no-cache bash curl postgresql-client
 
 # Copy JAR from build stage
 COPY --from=build /app/target/*.jar app.jar

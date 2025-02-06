@@ -28,6 +28,15 @@ public class AnotherPredictionCommand extends BaseCallbackCommand {
     }
 
     @Override
+    protected void handleMessageNotModified() {
+        try {
+            execute(null); // Повторна спроба з новим передбаченням
+        } catch (TelegramApiException e) {
+            handleError(e);
+        }
+    }
+
+    @Override
     protected InlineKeyboardMarkup createPredictionInlineKeyboard() {
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();

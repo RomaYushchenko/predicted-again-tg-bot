@@ -1,73 +1,55 @@
 package com.ua.yushchenko.service.prediction;
 
+import com.ua.yushchenko.model.Prediction;
 import com.ua.yushchenko.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
- * Реалізація сервісу передбачень.
- * Використовує паттерн Strategy для генерації різних типів передбачень.
+ * Implementation of PredictionService.
+ * Uses database-stored predictions and provides caching.
  */
 @Service
 @RequiredArgsConstructor
 public class PredictionServiceImpl implements PredictionService {
     private final UserService userService;
+    private final List<Prediction> predictions;
     private final Random random = new Random();
-
-    private static final List<String> QUICK_PREDICTIONS = List.of(
-        "Сьогодні буде чудовий день! 🌟",
-        "На вас чекає приємний сюрприз! 🎁",
-        "Ваші мрії скоро здійсняться! ✨",
-        "Удача на вашому боці! 🍀",
-        "Попереду важливі зміни! 🔄",
-        "Ви отримаєте гарні новини! 📨",
-        "Вас чекає цікава зустріч! 👥",
-        "Ваші зусилля будуть винагороджені! 🏆",
-        "Настав час для нових починань! 🚀",
-        "Вас очікує фінансовий успіх! 💰",
-        "Ваше бажання здійсниться! 🌠",
-        "На вас чекає приємна подорож! ✈️"
-    );
-
-    private static final List<String> DAILY_PREDICTIONS = List.of(
-        "Сьогодні ваш день буде наповнений радістю та успіхом! 🌞",
-        "День принесе важливі відкриття та нові можливості! 🎯",
-        "Сьогодні ви зможете вирішити складне питання! 🎊",
-        "День буде продуктивним та успішним! 📈",
-        "Сьогодні вас чекає приємна несподіванка! 🎁",
-        "День принесе гарні новини та позитивні емоції! 😊",
-        "Сьогодні ви отримаєте відповідь на важливе питання! 🔑",
-        "День буде наповнений цікавими зустрічами! 👥",
-        "Сьогодні ваші мрії почнуть здійснюватися! ⭐",
-        "День принесе фінансовий успіх та стабільність! 💰",
-        "Сьогодні ви зможете досягти поставленої мети! 🎯",
-        "День буде сповнений любові та гармонії! ❤️"
-    );
 
     @Override
     public String generateQuickPrediction(long chatId) {
-        String prediction = QUICK_PREDICTIONS.get(random.nextInt(QUICK_PREDICTIONS.size()));
+        List<Prediction> generalPredictions = predictions.stream()
+            .filter(p -> "Загальні".equals(p.getCategory()))
+            .collect(Collectors.toList());
+
+        String prediction = generalPredictions.get(random.nextInt(generalPredictions.size())).getText();
         userService.saveLastPrediction(chatId, prediction);
         return prediction;
     }
 
     @Override
     public String generateDailyPrediction(long chatId) {
-        String prediction = DAILY_PREDICTIONS.get(random.nextInt(DAILY_PREDICTIONS.size()));
+        String lastPrediction = userService.getLastPrediction(chatId);
+        String prediction;
+        do {
+            prediction = predictions.get(random.nextInt(predictions.size())).getText();
+        } while (prediction.equals(lastPrediction) && predictions.size() > 1);
+
         userService.saveLastPrediction(chatId, prediction);
         return prediction;
     }
 
     @Override
     public void addPredictionStrategy(PredictionStrategy strategy) {
-        // Не використовується в поточній реалізації
+        // Not used in current implementation
     }
 
     @Override
     public void removePredictionStrategy(PredictionStrategy strategy) {
-        // Не використовується в поточній реалізації
+        // Not used in current implementation
     }
 } 

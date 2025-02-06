@@ -6,4 +6,5 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
     <include file="classpath:db/changelog/changes/001-create-users-table.xml"/>
+    <include file="classpath:db/changelog/changes/002-create-predictions-table.xml"/>
 </databaseChangeLog> 

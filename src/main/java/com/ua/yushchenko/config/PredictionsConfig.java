@@ -1,6 +1,8 @@
 package com.ua.yushchenko.config;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ua.yushchenko.model.Prediction;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -39,21 +41,19 @@ public class PredictionsConfig {
      * Creates and initializes the Predictions bean.
      * Loads prediction data from the predictions.json resource file.
      *
-     * @return initialized Predictions object containing all prediction lists
+     * @return initialized list of predictions
      * @throws RuntimeException if there is an error loading the predictions file
      */
     @Bean
-    public Predictions predictions() {
+    public List<Prediction> predictions() {
         try {
             log.info("Loading predictions from predictions.json");
             ObjectMapper mapper = new ObjectMapper();
-            Predictions predictions = mapper.readValue(
-                new ClassPathResource("predictions.json").getInputStream(), 
-                Predictions.class
+            List<Prediction> predictions = mapper.readValue(
+                new ClassPathResource("predictions.json").getInputStream(),
+                new TypeReference<List<Prediction>>() {}
             );
-            log.info("Loaded {} quick predictions and {} daily predictions", 
-                predictions.getQuickPredictions().size(),
-                predictions.getDailyPredictions().size());
+            log.info("Loaded {} predictions", predictions.size());
             return predictions;
         } catch (IOException e) {
             log.error("Error loading predictions: {}", e.getMessage());

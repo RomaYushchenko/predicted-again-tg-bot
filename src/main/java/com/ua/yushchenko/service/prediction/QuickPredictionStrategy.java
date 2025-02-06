@@ -1,12 +1,14 @@
 package com.ua.yushchenko.service.prediction;
 
-import com.ua.yushchenko.config.PredictionsConfig.Predictions;
+import com.ua.yushchenko.model.Prediction;
 import com.ua.yushchenko.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of PredictionStrategy for generating quick predictions.
@@ -20,8 +22,8 @@ import java.util.Random;
 @Component
 @RequiredArgsConstructor
 public class QuickPredictionStrategy implements PredictionStrategy {
-    /** Configuration containing prediction lists */
-    private final Predictions predictions;
+    /** List of available predictions */
+    private final List<Prediction> predictions;
     
     /** Service for managing user data */
     private final UserService userService;
@@ -40,11 +42,13 @@ public class QuickPredictionStrategy implements PredictionStrategy {
         String lastPrediction = userService.getLastPrediction(chatId);
         String newPrediction;
         
+        List<Prediction> quickPredictions = predictions.stream()
+            .filter(p -> "Загальні".equals(p.getCategory()))
+            .collect(Collectors.toList());
+        
         do {
-            newPrediction = predictions.getQuickPredictions().get(
-                random.nextInt(predictions.getQuickPredictions().size())
-            );
-        } while (newPrediction.equals(lastPrediction) && predictions.getQuickPredictions().size() > 1);
+            newPrediction = quickPredictions.get(random.nextInt(quickPredictions.size())).getText();
+        } while (newPrediction.equals(lastPrediction) && quickPredictions.size() > 1);
         
         userService.saveLastPrediction(chatId, newPrediction);
         log.debug("Generated quick prediction for chat {}: {}", chatId, newPrediction);

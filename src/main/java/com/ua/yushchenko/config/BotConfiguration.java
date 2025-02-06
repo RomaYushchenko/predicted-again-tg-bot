@@ -3,6 +3,7 @@ package com.ua.yushchenko.config;
 import com.ua.yushchenko.bot.TelegramBot;
 import com.ua.yushchenko.command.CommandFactory;
 import com.ua.yushchenko.menu.MenuFactory;
+import com.ua.yushchenko.model.Prediction;
 import com.ua.yushchenko.repository.UserRepository;
 import com.ua.yushchenko.service.DailyPredictionService;
 import com.ua.yushchenko.service.MessageSender;
@@ -27,6 +28,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+
+import java.util.List;
 
 /**
  * Configuration class for Telegram bot and related services.
@@ -184,11 +187,12 @@ public class BotConfiguration {
      * Creates PredictionService bean for generating predictions.
      *
      * @param userService service for user management
+     * @param predictions list of available predictions
      * @return configured PredictionService instance
      */
     @Bean
-    public PredictionService predictionService(UserService userService) {
-        return new PredictionServiceImpl(userService);
+    public PredictionService predictionService(UserService userService, List<Prediction> predictions) {
+        return new PredictionServiceImpl(userService, predictions);
     }
 
     /**

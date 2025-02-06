@@ -43,7 +43,7 @@ public class DailyPredictionStrategy implements PredictionStrategy {
         String newPrediction;
         
         List<Prediction> dailyPredictions = predictions.stream()
-            .filter(p -> !"Загальні".equals(p.getCategory()))
+            //.filter(p -> !"Загальні".equals(p.getCategory()))
             .collect(Collectors.toList());
         
         do {

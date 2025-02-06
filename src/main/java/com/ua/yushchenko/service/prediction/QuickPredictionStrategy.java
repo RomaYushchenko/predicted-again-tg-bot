@@ -43,7 +43,7 @@ public class QuickPredictionStrategy implements PredictionStrategy {
         String newPrediction;
         
         List<Prediction> quickPredictions = predictions.stream()
-            .filter(p -> "Загальні".equals(p.getCategory()))
+            //.filter(p -> "Загальні".equals(p.getCategory()))
             .collect(Collectors.toList());
         
         do {

@@ -23,7 +23,7 @@ public class PredictionServiceImpl implements PredictionService {
     @Override
     public String generateQuickPrediction(long chatId) {
         List<Prediction> generalPredictions = predictions.stream()
-            .filter(p -> "Загальні".equals(p.getCategory()))
+            //.filter(p -> "Загальні".equals(p.getCategory()))
             .collect(Collectors.toList());
 
         String prediction = generalPredictions.get(random.nextInt(generalPredictions.size())).getText();

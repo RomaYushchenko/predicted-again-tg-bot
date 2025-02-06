@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Implementation of PredictionLoaderService.
@@ -39,7 +40,7 @@ public class PredictionLoaderServiceImpl implements PredictionLoaderService {
         if (!arePredictionsLoaded()) {
             log.info("Loading predictions from file...");
             try {
-                List<Prediction> predictions = loadPredictionsFromFile();
+                Set<Prediction> predictions = loadPredictionsFromFile();
                 LocalDateTime now = LocalDateTime.now();
                 predictions.forEach(prediction -> {
                     prediction.setCreatedAt(now);
@@ -81,11 +82,11 @@ public class PredictionLoaderServiceImpl implements PredictionLoaderService {
         return predictionRepository.existsBy();
     }
 
-    private List<Prediction> loadPredictionsFromFile() throws IOException {
+    private Set<Prediction> loadPredictionsFromFile() throws IOException {
         var resource = new ClassPathResource("predictions.json");
         return objectMapper.readValue(
             resource.getInputStream(),
-            new TypeReference<List<Prediction>>() {}
+            new TypeReference<Set<Prediction>>() {}
         );
     }
 } 

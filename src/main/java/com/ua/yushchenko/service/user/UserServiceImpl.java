@@ -6,7 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,17 +25,61 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
+    public void saveTimeZone(long chatId, String timeZone) {
+        User user = userRepository.findByChatId(chatId)
+                .orElseGet(() -> createUser(chatId));
+        user.setTimeZone(timeZone);
+        userRepository.save(user);
+    }
+
+    @Override
+    public String getTimeZone(long chatId) {
+        return userRepository.findByChatId(chatId)
+                .map(User::getTimeZone)
+                .orElse("Europe/Kiev"); // Значення за замовчуванням
+    }
+
+    @Override
+    public LocalTime convertToUTC(long chatId, LocalTime localTime) {
+        String timeZone = getTimeZone(chatId);
+        ZoneId userZone = ZoneId.of(timeZone);
+        ZoneId utcZone = ZoneId.of("UTC");
+
+        LocalDate today = LocalDate.now();
+        ZonedDateTime userDateTime = ZonedDateTime.of(today, localTime, userZone);
+        ZonedDateTime utcDateTime = userDateTime.withZoneSameInstant(utcZone);
+
+        return utcDateTime.toLocalTime();
+    }
+
+    @Override
+    public LocalTime convertFromUTC(long chatId, LocalTime utcTime) {
+        String timeZone = getTimeZone(chatId);
+        ZoneId userZone = ZoneId.of(timeZone);
+        ZoneId utcZone = ZoneId.of("UTC");
+
+        LocalDate today = LocalDate.now();
+        ZonedDateTime utcDateTime = ZonedDateTime.of(today, utcTime, utcZone);
+        ZonedDateTime userDateTime = utcDateTime.withZoneSameInstant(userZone);
+
+        return userDateTime.toLocalTime();
+    }
+
+    @Override
     public void saveNotificationTime(long chatId, LocalTime time) {
         User user = userRepository.findByChatId(chatId)
                 .orElseGet(() -> createUser(chatId));
-        user.setNotificationTime(time);
+        // Конвертуємо час користувача в UTC перед збереженням
+        LocalTime utcTime = convertToUTC(chatId, time);
+        user.setNotificationTime(utcTime);
         userRepository.save(user);
     }
 
     @Override
     public Optional<LocalTime> getNotificationTime(long chatId) {
         return userRepository.findByChatId(chatId)
-                .map(User::getNotificationTime);
+                .map(User::getNotificationTime)
+                .map(utcTime -> convertFromUTC(chatId, utcTime));
     }
 
     @Override
@@ -100,6 +147,7 @@ public class UserServiceImpl implements UserService {
         user.setChatId(chatId);
         user.setNotificationsEnabled(false);
         user.setNotificationTime(null);
+        user.setTimeZone("Europe/Kiev"); // Значення за замовчуванням
         return userRepository.save(user);
     }
 } 

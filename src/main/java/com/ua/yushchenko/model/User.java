@@ -38,4 +38,7 @@ public class User {
 
     /** The last prediction sent to this user */
     private String lastPrediction;
+
+    /** Часовий пояс користувача */
+    private String timeZone;
 } 

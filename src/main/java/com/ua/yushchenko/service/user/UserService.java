@@ -86,4 +86,38 @@ public interface UserService {
      * @return множина ID чатів
      */
     Set<Long> findChatsWithNotifications(LocalTime time);
+
+    /**
+     * Зберігає часовий пояс для користувача.
+     *
+     * @param chatId ID чату користувача
+     * @param timeZone часовий пояс
+     */
+    void saveTimeZone(long chatId, String timeZone);
+
+    /**
+     * Отримує часовий пояс користувача.
+     *
+     * @param chatId ID чату користувача
+     * @return часовий пояс користувача
+     */
+    String getTimeZone(long chatId);
+
+    /**
+     * Конвертує час з часового поясу користувача в UTC.
+     *
+     * @param chatId ID чату користувача
+     * @param localTime локальний час користувача
+     * @return час в UTC
+     */
+    LocalTime convertToUTC(long chatId, LocalTime localTime);
+
+    /**
+     * Конвертує час з UTC в часовий пояс користувача.
+     *
+     * @param chatId ID чату користувача
+     * @param utcTime час в UTC
+     * @return локальний час користувача
+     */
+    LocalTime convertFromUTC(long chatId, LocalTime utcTime);
 } 

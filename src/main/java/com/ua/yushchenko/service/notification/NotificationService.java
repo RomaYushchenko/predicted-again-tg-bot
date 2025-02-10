@@ -2,7 +2,7 @@ package com.ua.yushchenko.service.notification;
 
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 /**
  * Сервіс для управління сповіщеннями користувачів.
@@ -17,9 +17,9 @@ public interface NotificationService {
     /**
      * Відправляє щоденне передбачення користувачу.
      *
-     * @param chatId ID чату користувача
+     * @param userId ID користувача
      */
-    void sendDailyPrediction(long chatId) throws TelegramApiException;
+    void sendDailyPrediction(Long userId);
 
     /**
      * Запускає планувальник сповіщень.
@@ -46,7 +46,7 @@ public interface NotificationService {
      * @param chatId ID чату користувача
      * @param time час сповіщень
      */
-    void setNotificationTime(long chatId, LocalTime time);
+    void setNotificationTime(long chatId, LocalDateTime time);
 
     /**
      * Вмикає сповіщення для користувача.
@@ -84,4 +84,8 @@ public interface NotificationService {
      * @return текстовий опис статусу сповіщень
      */
     String getNotificationStatus(long chatId);
+
+    void updateNotificationTime(Long userId, LocalDateTime notificationTime);
+    void updateLastNotificationTime(Long userId, LocalDateTime lastNotificationTime);
+    String formatTime(LocalDateTime time);
 } 

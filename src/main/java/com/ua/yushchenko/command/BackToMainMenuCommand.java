@@ -17,4 +17,14 @@ public class BackToMainMenuCommand extends BaseCallbackCommand {
     public void execute(Update update) throws TelegramApiException {
         sendMessage("Головне меню:", createMainMenuKeyboard());
     }
+
+    @Override
+    public String getCommandName() {
+        return "back_to_main_menu";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Повернутися до головного меню";
+    }
 } 

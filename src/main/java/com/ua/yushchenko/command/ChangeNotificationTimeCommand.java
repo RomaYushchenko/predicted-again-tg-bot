@@ -51,4 +51,14 @@ public class ChangeNotificationTimeCommand implements Command {
         
         telegramBotService.sendMessage(chatId, message, keyboard);
     }
+
+    @Override
+    public String getCommandName() {
+        return "change_time";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Змінити час отримання щоденних передбачень";
+    }
 } 

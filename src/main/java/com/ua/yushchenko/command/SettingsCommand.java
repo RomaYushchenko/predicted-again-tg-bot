@@ -6,7 +6,7 @@ import com.ua.yushchenko.service.prediction.PredictionService;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
@@ -49,12 +49,22 @@ public class SettingsCommand extends BaseMessageCommand {
         message.append("🔔 Сповіщення: ").append(notificationsEnabled ? "Увімкнено" : "Вимкнено").append("\n");
         
         if (notificationsEnabled) {
-            Optional<LocalTime> notificationTime = dailyPredictionService.getNotificationTime(chatId);
+            Optional<LocalDateTime> notificationTime = dailyPredictionService.getNotificationTime(chatId);
             if (notificationTime.isPresent()) {
                 message.append("🕒 Час сповіщень: ").append(notificationTime.get().format(TIME_FORMATTER));
             }
         }
         
         sendMessage(message.toString(), createSettingsInlineKeyboard(notificationsEnabled));
+    }
+
+    @Override
+    public String getCommandName() {
+        return "/settings";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Налаштування сповіщень та часу отримання передбачень";
     }
 } 

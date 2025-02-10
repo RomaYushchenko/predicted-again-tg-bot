@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -40,7 +41,13 @@ public class TimeMessageCommand extends BaseMessageCommand {
         String timeStr = message.getText().trim();
         try {
             LocalTime time = LocalTime.parse(timeStr, TIME_FORMATTER);
-            dailyPredictionService.setNotificationTime(chatId, time);
+            LocalDateTime notificationTime = LocalDateTime.now()
+                .withHour(time.getHour())
+                .withMinute(time.getMinute())
+                .withSecond(0)
+                .withNano(0);
+            
+            dailyPredictionService.setNotificationTime(chatId, notificationTime);
             stateManager.clearState(chatId);
             
             if (!dailyPredictionService.isNotificationsEnabled(chatId)) {
@@ -83,5 +90,15 @@ public class TimeMessageCommand extends BaseMessageCommand {
             
             sendMessage(errorMessage, keyboard);
         }
+    }
+
+    @Override
+    public String getCommandName() {
+        return "time_message";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Обробка повідомлення з часом для сповіщень";
     }
 } 

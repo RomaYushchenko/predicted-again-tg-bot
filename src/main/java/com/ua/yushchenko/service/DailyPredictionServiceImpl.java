@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
@@ -63,7 +63,7 @@ public class DailyPredictionServiceImpl implements DailyPredictionService {
      * Delegates to UserService to get the notification time.
      */
     @Override
-    public Optional<LocalTime> getNotificationTime(long chatId) {
+    public Optional<LocalDateTime> getNotificationTime(long chatId) {
         return userService.getNotificationTime(chatId);
     }
 
@@ -72,7 +72,7 @@ public class DailyPredictionServiceImpl implements DailyPredictionService {
      * Delegates to UserService to set the notification time.
      */
     @Override
-    public void setNotificationTime(long chatId, LocalTime time) {
+    public void setNotificationTime(long chatId, LocalDateTime time) {
         if (time == null) {
             throw new IllegalArgumentException("Notification time cannot be null");
         }
@@ -84,7 +84,7 @@ public class DailyPredictionServiceImpl implements DailyPredictionService {
      * Delegates to UserService to get chats with notifications for a specific time.
      */
     @Override
-    public Set<Long> getChatsWithNotifications(LocalTime time) {
+    public Set<Long> getChatsWithNotifications(LocalDateTime time) {
         return userService.findChatsWithNotifications(time);
     }
 
@@ -93,7 +93,7 @@ public class DailyPredictionServiceImpl implements DailyPredictionService {
      * Delegates to UserService to find chats with notifications for a specific time.
      */
     @Override
-    public Set<Long> findChatsWithNotifications(LocalTime time) {
+    public Set<Long> findChatsWithNotifications(LocalDateTime time) {
         if (time == null) {
             throw new IllegalArgumentException("Time cannot be null");
         }

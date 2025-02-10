@@ -40,4 +40,14 @@ public class QuickPredictionCommand extends BaseMessageCommand {
         String prediction = predictionService.generateQuickPrediction(chatId);
         sendMessage(prediction, createPredictionInlineKeyboard());
     }
+
+    @Override
+    public String getCommandName() {
+        return "/predict";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Отримати швидке передбачення";
+    }
 } 

@@ -2,7 +2,7 @@ package com.ua.yushchenko.service;
 
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
@@ -52,7 +52,7 @@ public interface DailyPredictionService {
      * @param chatId ID of the user's chat
      * @return Optional containing the notification time if set, empty otherwise
      */
-    Optional<LocalTime> getNotificationTime(long chatId);
+    Optional<LocalDateTime> getNotificationTime(long chatId);
 
     /**
      * Sets the notification time for a user.
@@ -60,7 +60,7 @@ public interface DailyPredictionService {
      * @param chatId ID of the user's chat
      * @param time time at which notifications should be sent
      */
-    void setNotificationTime(long chatId, LocalTime time);
+    void setNotificationTime(long chatId, LocalDateTime time);
 
     /**
      * Gets all chat IDs that have notifications scheduled for a specific time.
@@ -68,7 +68,7 @@ public interface DailyPredictionService {
      * @param time the time to check for notifications
      * @return set of chat IDs with notifications scheduled for the specified time
      */
-    Set<Long> getChatsWithNotifications(LocalTime time);
+    Set<Long> getChatsWithNotifications(LocalDateTime time);
 
     /**
      * Finds all chat IDs that have notifications enabled for a specific time.
@@ -76,7 +76,7 @@ public interface DailyPredictionService {
      * @param time the time to check for notifications
      * @return set of chat IDs with notifications enabled for the specified time
      */
-    Set<Long> findChatsWithNotifications(LocalTime time);
+    Set<Long> findChatsWithNotifications(LocalDateTime time);
 
     /**
      * Checks if a notification should be sent to a user.

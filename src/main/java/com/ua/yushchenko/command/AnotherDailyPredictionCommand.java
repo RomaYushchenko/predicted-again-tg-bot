@@ -27,4 +27,14 @@ public class AnotherDailyPredictionCommand extends BaseCallbackCommand {
             handleError(e);
         }
     }
+
+    @Override
+    public String getCommandName() {
+        return "another_daily_prediction";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Отримати ще одне щоденне передбачення";
+    }
 } 

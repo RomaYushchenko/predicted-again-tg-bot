@@ -18,4 +18,14 @@ public class DailyPredictionCommand extends BaseMessageCommand {
         String prediction = predictionService.generateDailyPrediction(chatId);
         sendMessage(prediction, createDailyPredictionInlineKeyboard());
     }
+
+    @Override
+    public String getCommandName() {
+        return "/daily";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Отримати щоденне передбачення";
+    }
 } 

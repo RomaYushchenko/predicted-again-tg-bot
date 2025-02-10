@@ -10,6 +10,11 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.Update;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.ua.yushchenko.command.CommandConstants.*;
 
@@ -20,6 +25,7 @@ import static com.ua.yushchenko.command.CommandConstants.*;
  * @author AI
  * @version 0.1-beta
  */
+@Component
 public class CommandFactory {
     private final TelegramBot bot;
     private final PredictionService predictionService;
@@ -27,6 +33,7 @@ public class CommandFactory {
     private final NotificationService notificationService;
     private final TelegramBotService telegramBotService;
     private final BotStateManager stateManager;
+    private final Map<Long, Map<String, Command>> commandCache = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(CommandFactory.class);
 
     /**
@@ -88,7 +95,7 @@ public class CommandFactory {
 
         // Потім перевіряємо звичайні команди
         return switch (text) {
-            case COMMAND_START -> new StartCommand(bot, chatId, predictionService, dailyPredictionService);
+            case COMMAND_START -> new StartCommand(notificationService);
             case COMMAND_SETTINGS -> new SettingsCommand(bot, chatId, predictionService, dailyPredictionService);
             case COMMAND_QUICK -> new QuickPredictionCommand(bot, chatId, predictionService, dailyPredictionService);
             case COMMAND_DAILY -> new DailyPredictionCommand(bot, chatId, predictionService, dailyPredictionService);

@@ -18,4 +18,18 @@ public interface Command {
      * @throws TelegramApiException if there is an error executing the command
      */
     void execute(Update update) throws TelegramApiException;
+
+    /**
+     * Gets the command name (e.g., "/start", "/help").
+     *
+     * @return the command name
+     */
+    String getCommandName();
+
+    /**
+     * Gets the command description for help messages.
+     *
+     * @return the command description
+     */
+    String getDescription();
 } 

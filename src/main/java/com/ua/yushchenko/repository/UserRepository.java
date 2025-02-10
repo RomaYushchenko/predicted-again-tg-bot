@@ -4,7 +4,7 @@ import com.ua.yushchenko.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,5 +38,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @param time the notification time to search for
      * @return list of users with notifications enabled at the specified time
      */
-    List<User> findAllByNotificationsEnabledTrueAndNotificationTime(LocalTime time);
+    List<User> findAllByNotificationsEnabledTrueAndNotificationTime(LocalDateTime time);
 } 

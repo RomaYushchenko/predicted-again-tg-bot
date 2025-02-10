@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="008" author="yushchenko">
+        <!-- Add new timestamp columns -->
+        <addColumn tableName="users">
+            <column name="notification_time_new" type="timestamp without time zone"/>
+            <column name="last_notification_time_new" type="timestamp without time zone"/>
+        </addColumn>
+
+        <!-- Copy data with conversion -->
+        <sql>
+            UPDATE users 
+            SET notification_time_new = CURRENT_DATE + notification_time,
+                last_notification_time_new = CURRENT_DATE + last_notification_time;
+        </sql>
+
+        <!-- Drop old columns -->
+        <dropColumn tableName="users" columnName="notification_time"/>
+        <dropColumn tableName="users" columnName="last_notification_time"/>
+
+        <!-- Rename new columns to original names -->
+        <renameColumn tableName="users" 
+                     oldColumnName="notification_time_new" 
+                     newColumnName="notification_time"/>
+        <renameColumn tableName="users" 
+                     oldColumnName="last_notification_time_new" 
+                     newColumnName="last_notification_time"/>
+    </changeSet>
+
+</databaseChangeLog> 

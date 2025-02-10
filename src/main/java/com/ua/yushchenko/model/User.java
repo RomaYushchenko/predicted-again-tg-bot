@@ -5,10 +5,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Column;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 /**
  * Entity class representing a Telegram bot user.
@@ -31,7 +32,8 @@ public class User {
     private Long chatId;
 
     /** Time at which daily notifications should be sent */
-    private LocalTime notificationTime;
+    @Column(name = "notification_time")
+    private LocalDateTime notificationTime;
 
     /** Whether notifications are enabled for this user */
     private boolean notificationsEnabled;
@@ -41,4 +43,8 @@ public class User {
 
     /** Часовий пояс користувача */
     private String timeZone;
+
+    /** Час останнього надісланого сповіщення */
+    @Column(name = "last_notification_time")
+    private LocalDateTime lastNotificationTime;
 } 

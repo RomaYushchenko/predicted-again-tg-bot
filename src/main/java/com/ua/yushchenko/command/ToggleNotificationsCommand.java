@@ -22,4 +22,14 @@ public class ToggleNotificationsCommand extends BaseMessageCommand {
         String message = wasEnabled ? "🔕 Сповіщення вимкнено" : "🔔 Сповіщення увімкнено";
         sendMessage(message, createSettingsInlineKeyboard(!wasEnabled));
     }
+
+    @Override
+    public String getCommandName() {
+        return "toggle_notifications";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Увімкнути/вимкнути сповіщення";
+    }
 } 

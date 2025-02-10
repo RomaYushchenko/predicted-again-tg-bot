@@ -1,41 +1,53 @@
 package com.ua.yushchenko.command;
 
-import com.ua.yushchenko.bot.TelegramBot;
-import com.ua.yushchenko.service.DailyPredictionService;
-import com.ua.yushchenko.service.prediction.PredictionService;
+import com.ua.yushchenko.service.notification.NotificationService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-public class StartCommand extends BaseMessageCommand {
-    private static final LocalTime DEFAULT_NOTIFICATION_TIME = LocalTime.of(9, 0);
-
-    public StartCommand(TelegramBot bot, long chatId,
-                       PredictionService predictionService,
-                       DailyPredictionService dailyPredictionService) {
-        super(bot, chatId, predictionService, dailyPredictionService);
-    }
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class StartCommand implements Command {
+    private final NotificationService notificationService;
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     @Override
     public void execute(Update update) throws TelegramApiException {
-        // Встановлюємо налаштування за замовчуванням
-        if (!dailyPredictionService.isNotificationsEnabled(chatId)) {
-            dailyPredictionService.setNotificationTime(chatId, DEFAULT_NOTIFICATION_TIME);
-            dailyPredictionService.toggleNotifications(chatId);
+        long chatId = update.getMessage().getChatId();
+        String[] args = update.getMessage().getText().split("\\s+");
+
+        if (args.length > 1) {
+            try {
+                LocalDateTime notificationTime = LocalDateTime.now()
+                    .withHour(Integer.parseInt(args[1].split(":")[0]))
+                    .withMinute(Integer.parseInt(args[1].split(":")[1]))
+                    .withSecond(0)
+                    .withNano(0);
+
+                notificationService.setNotificationTime(chatId, notificationTime);
+                notificationService.enableNotifications(chatId);
+            } catch (Exception e) {
+                log.error("Failed to parse notification time: {}", args[1], e);
+            }
         }
 
-        String welcomeMessage = """
-            👋 Вітаю! Я бот передбачень, який допоможе вам дізнатися, що чекає на вас у майбутньому.
+        notificationService.sendDailyPrediction(chatId);
+    }
 
-            🎲 Ви можете отримати швидке передбачення прямо зараз
-            📅 Або налаштувати щоденні передбачення у зручний для вас час
-            ⚙️ У налаштуваннях ви можете керувати сповіщеннями
+    @Override
+    public String getCommandName() {
+        return "/start";
+    }
 
-            ℹ️ За замовчуванням щоденні сповіщення увімкнені та встановлені на 09:00
-
-            Оберіть опцію з меню нижче:""";
-        
-        sendMessage(welcomeMessage, createMainMenuKeyboard());
+    @Override
+    public String getDescription() {
+        return "Почати отримувати щоденні передбачення. " +
+                "Ви можете вказати час для щоденних сповіщень у форматі /start HH:mm";
     }
 } 

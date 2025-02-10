@@ -57,4 +57,14 @@ public class AnotherPredictionCommand extends BaseCallbackCommand {
         
         return keyboard;
     }
+
+    @Override
+    public String getCommandName() {
+        return "another_prediction";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Отримати ще одне передбачення";
+    }
 } 

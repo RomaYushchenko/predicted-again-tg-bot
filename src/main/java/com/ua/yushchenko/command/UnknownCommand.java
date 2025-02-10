@@ -18,4 +18,14 @@ public class UnknownCommand extends BaseMessageCommand {
         String message = "На жаль, я не розумію цю команду. Будь ласка, використовуйте кнопки меню.";
         sendMessage(message, createMainMenuKeyboard());
     }
+
+    @Override
+    public String getCommandName() {
+        return "unknown";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Невідома команда";
+    }
 } 

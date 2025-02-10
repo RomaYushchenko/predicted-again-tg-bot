@@ -42,6 +42,7 @@ public class TimeMessageCommand extends BaseMessageCommand {
         String timeStr = message.getText().trim();
         try {
             LocalTime time = LocalTime.parse(timeStr, TIME_FORMATTER).minusHours(2);
+            LocalTime userLocalTime = LocalTime.parse(timeStr, TIME_FORMATTER);
 
             LocalDateTime notificationTime = LocalDateTime.now()
                 .withHour(time.getHour())
@@ -69,7 +70,7 @@ public class TimeMessageCommand extends BaseMessageCommand {
             buttons.add(row);
             keyboard.setKeyboard(buttons);
             
-            String successMessage = String.format("✅ Час сповіщень успішно встановлено на %s", time.format(TIME_FORMATTER));
+            String successMessage = String.format("✅ Час сповіщень успішно встановлено на %s", userLocalTime.format(TIME_FORMATTER));
             sendMessage(successMessage, keyboard);
         } catch (DateTimeParseException e) {
             String errorMessage = """

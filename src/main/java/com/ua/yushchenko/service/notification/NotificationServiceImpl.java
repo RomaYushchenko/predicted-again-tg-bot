@@ -118,7 +118,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         return userService.getNotificationTime(chatId)
-            .map(time -> "🔔 Сповіщення увімкнені\n⏰ Час сповіщень: " + formatTime(time))
+            .map(time -> "🔔 Сповіщення увімкнені\n⏰ Час сповіщень: " + formatTime(time.plusHours(2)))
             .orElse("🔔 Сповіщення увімкнені\n⚠️ Час сповіщень не встановлено");
     }
 

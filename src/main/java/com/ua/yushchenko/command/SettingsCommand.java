@@ -51,7 +51,7 @@ public class SettingsCommand extends BaseMessageCommand {
         if (notificationsEnabled) {
             Optional<LocalDateTime> notificationTime = dailyPredictionService.getNotificationTime(chatId);
             if (notificationTime.isPresent()) {
-                message.append("🕒 Час сповіщень: ").append(notificationTime.get().format(TIME_FORMATTER));
+                message.append("🕒 Час сповіщень: ").append(notificationTime.get().plusHours(2).format(TIME_FORMATTER));
             }
         }
         

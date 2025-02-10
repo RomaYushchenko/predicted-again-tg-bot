@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +41,8 @@ public class TimeMessageCommand extends BaseMessageCommand {
 
         String timeStr = message.getText().trim();
         try {
-            LocalTime time = LocalTime.parse(timeStr, TIME_FORMATTER);
+            LocalTime time = LocalTime.parse(timeStr, TIME_FORMATTER).minusHours(2);
+
             LocalDateTime notificationTime = LocalDateTime.now()
                 .withHour(time.getHour())
                 .withMinute(time.getMinute())

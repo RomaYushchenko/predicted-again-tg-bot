@@ -74,7 +74,7 @@ public class TimeMessageCommand extends BaseMessageCommand {
             sendMessage(successMessage, keyboard);
         } catch (DateTimeParseException e) {
             String errorMessage = """
-                    ❌ Невірний формат часу. Будь ласка, введіть час у форматі ГГ:ХХ
+                    ❌ Невірний формат часу. Будь ласка, введіть час у форматі ГГ:ХХ (По Києву)
                     
                     Наприклад: 09:00 або 21:30""";
             

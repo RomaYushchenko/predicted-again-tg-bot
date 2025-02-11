@@ -28,17 +28,15 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Scheduled(cron = "0 * * * * *") // Кожну хвилину
-    public void sendNotifications() throws TelegramApiException {
+    public void sendNotifications() {
         LocalDateTime now = LocalDateTime.now();
         List<User> users = userService.findAllByNotificationsEnabled(true);
 
         for (User user : users) {
-            if (user.getNotificationTime() != null && shouldSendNotification(user, now)) {
+            if (user.isNotificationsEnabled()
+                    && user.getNotificationTime() != null && shouldSendNotification(user, now)) {
                 sendDailyPrediction(user.getId());
                 updateLastNotificationTime(user.getId(), now);
-            } else {
-                log.debug("sendNotifications.X: Skipping notification for chat user {} as notification was at {}",
-                          user.getChatId(), user.getNotificationTime());
             }
         }
     }

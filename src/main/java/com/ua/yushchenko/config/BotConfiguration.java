@@ -1,5 +1,7 @@
 package com.ua.yushchenko.config;
 
+import java.util.List;
+
 import com.ua.yushchenko.bot.TelegramBot;
 import com.ua.yushchenko.command.CommandFactory;
 import com.ua.yushchenko.menu.MenuFactory;
@@ -8,7 +10,6 @@ import com.ua.yushchenko.repository.UserRepository;
 import com.ua.yushchenko.service.DailyPredictionService;
 import com.ua.yushchenko.service.MessageSender;
 import com.ua.yushchenko.service.notification.NotificationService;
-import com.ua.yushchenko.service.notification.NotificationServiceImpl;
 import com.ua.yushchenko.service.prediction.PredictionService;
 import com.ua.yushchenko.service.prediction.PredictionServiceImpl;
 import com.ua.yushchenko.service.telegram.TelegramApiExecutor;
@@ -22,14 +23,11 @@ import com.ua.yushchenko.state.BotStateManager;
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-
-import java.util.List;
 
 /**
  * Configuration class for Telegram bot and related services.
@@ -87,52 +85,50 @@ public class BotConfiguration {
         scheduler.setDaemon(true);
         scheduler.setWaitForTasksToCompleteOnShutdown(true);
         scheduler.setAwaitTerminationSeconds(60);
-        scheduler.setErrorHandler(throwable -> 
-            log.error("Error in scheduled task: {}", throwable.getMessage())
-        );
+        scheduler.setErrorHandler(throwable ->
+                                          log.error("Error in scheduled task: {}", throwable.getMessage())
+                                 );
         return scheduler;
     }
 
     /**
      * Creates CommandFactory bean for handling bot commands.
      *
-     * @param bot the main bot instance
-     * @param predictionService service for generating predictions
+     * @param bot                    the main bot instance
+     * @param predictionService      service for generating predictions
      * @param dailyPredictionService service for daily predictions
-     * @param notificationService service for managing notifications
-     * @param telegramBotService service for Telegram API interactions
-     * @param stateManager manager for bot states
+     * @param notificationService    service for managing notifications
+     * @param stateManager           manager for bot states
      * @return configured CommandFactory instance
      */
     @Bean
     public CommandFactory commandFactory(@Lazy TelegramBot bot,
-                                      PredictionService predictionService,
-                                      DailyPredictionService dailyPredictionService,
-                                      NotificationService notificationService,
-                                      TelegramBotService telegramBotService,
-                                      BotStateManager stateManager) {
+                                         PredictionService predictionService,
+                                         DailyPredictionService dailyPredictionService,
+                                         NotificationService notificationService,
+                                         BotStateManager stateManager) {
         return new CommandFactory(bot, predictionService, dailyPredictionService,
-                                notificationService, telegramBotService, stateManager);
+                                  notificationService, stateManager);
     }
 
     /**
      * Creates the main TelegramBot bean.
      *
-     * @param botConfig bot configuration
-     * @param predictionService service for generating predictions
+     * @param botSettings           bot configuration
+     * @param predictionService   service for generating predictions
      * @param notificationService service for managing notifications
-     * @param telegramBotService service for Telegram API interactions
-     * @param commandFactory factory for creating command instances
+     * @param telegramBotService  service for Telegram API interactions
+     * @param commandFactory      factory for creating command instances
      * @return configured TelegramBot instance
      */
     @Bean
     public TelegramBot telegramBot(BotConfig.BotSettings botSettings,
-                                 PredictionService predictionService,
-                                 NotificationService notificationService,
-                                 @Lazy TelegramBotService telegramBotService,
-                                 @Lazy CommandFactory commandFactory) {
+                                   PredictionService predictionService,
+                                   NotificationService notificationService,
+                                   @Lazy TelegramBotService telegramBotService,
+                                   @Lazy CommandFactory commandFactory) {
         return new TelegramBot(botSettings, predictionService, notificationService,
-                             telegramBotService, commandFactory);
+                               telegramBotService, commandFactory);
     }
 
     /**
@@ -160,15 +156,13 @@ public class BotConfiguration {
     /**
      * Creates TelegramBotService bean for handling bot operations.
      *
-     * @param bot the main bot instance
      * @param telegramMessageSender sender for Telegram messages
-     * @param menuFactory factory for creating menus
+     * @param menuFactory           factory for creating menus
      * @return configured TelegramBotService instance
      */
     @Bean
-    public TelegramBotService telegramBotService(@Lazy TelegramBot bot,
-                                               TelegramMessageSender telegramMessageSender,
-                                               MenuFactory menuFactory) {
+    public TelegramBotService telegramBotService(TelegramMessageSender telegramMessageSender,
+                                                 MenuFactory menuFactory) {
         return new TelegramBotServiceImpl(telegramMessageSender, menuFactory);
     }
 

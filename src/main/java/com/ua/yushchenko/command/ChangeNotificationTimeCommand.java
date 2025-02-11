@@ -26,7 +26,7 @@ public class ChangeNotificationTimeCommand extends BaseMessageCommand {
         stateManager.setAwaitingTimeState(chatId);
 
         String message = """
-            ⏰ Будь ласка, введіть час для щоденних сповіщень у форматі ГГ:ХХ (По Києву)
+            ⏰ Будь ласка, введіть час для щоденних сповіщень у форматі ГГ:ХХ (Час у Києві)
             
             Наприклад: 09:00 або 21:30
             

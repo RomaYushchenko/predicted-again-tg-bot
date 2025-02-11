@@ -91,12 +91,7 @@ public abstract class BaseCallbackCommand extends BaseCommand {
         anotherButton.setText(BUTTON_ANOTHER_PREDICTION);
         anotherButton.setCallbackData(CALLBACK_ANOTHER_PREDICTION);
 
-        InlineKeyboardButton menuButton = new InlineKeyboardButton();
-        menuButton.setText(BUTTON_BACK_TO_MENU);
-        menuButton.setCallbackData(CALLBACK_MENU);
-
         rowInline.add(anotherButton);
-        rowInline.add(menuButton);
 
         rowsInline.add(rowInline);
         markupInline.setKeyboard(rowsInline);
@@ -113,66 +108,11 @@ public abstract class BaseCallbackCommand extends BaseCommand {
         anotherButton.setText(BUTTON_ANOTHER_PREDICTION);
         anotherButton.setCallbackData(CALLBACK_ANOTHER_DAILY);
 
-        InlineKeyboardButton menuButton = new InlineKeyboardButton();
-        menuButton.setText(BUTTON_BACK_TO_MENU);
-        menuButton.setCallbackData(CALLBACK_MENU);
-
         rowInline.add(anotherButton);
-        rowInline.add(menuButton);
 
         rowsInline.add(rowInline);
         markupInline.setKeyboard(rowsInline);
 
         return markupInline;
-    }
-
-    protected InlineKeyboardMarkup createSettingsInlineKeyboard(boolean notificationsEnabled) {
-        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-
-        List<InlineKeyboardButton> row1 = new ArrayList<>();
-        InlineKeyboardButton toggleButton = new InlineKeyboardButton();
-        toggleButton.setText(notificationsEnabled ? BUTTON_DISABLE_NOTIFICATIONS : BUTTON_ENABLE_NOTIFICATIONS);
-        toggleButton.setCallbackData(CALLBACK_TOGGLE_NOTIFICATIONS);
-        row1.add(toggleButton);
-
-        List<InlineKeyboardButton> row2 = new ArrayList<>();
-        InlineKeyboardButton timeButton = new InlineKeyboardButton();
-        timeButton.setText(BUTTON_CHANGE_TIME);
-        timeButton.setCallbackData(CALLBACK_CHANGE_TIME);
-        row2.add(timeButton);
-
-        List<InlineKeyboardButton> row3 = new ArrayList<>();
-        InlineKeyboardButton menuButton = new InlineKeyboardButton();
-        menuButton.setText(BUTTON_BACK_TO_MENU);
-        menuButton.setCallbackData(CALLBACK_MENU);
-        row3.add(menuButton);
-
-        rowsInline.add(row1);
-        rowsInline.add(row2);
-        rowsInline.add(row3);
-
-        markupInline.setKeyboard(rowsInline);
-        return markupInline;
-    }
-
-    protected InlineKeyboardMarkup createBackToMenuInlineKeyboard() {
-        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline = new ArrayList<>();
-
-        InlineKeyboardButton menuButton = new InlineKeyboardButton();
-        menuButton.setText(BUTTON_BACK_TO_MENU);
-        menuButton.setCallbackData(CALLBACK_MENU);
-        rowInline.add(menuButton);
-
-        rowsInline.add(rowInline);
-        markupInline.setKeyboard(rowsInline);
-
-        return markupInline;
-    }
-
-    protected void showMainMenu() {
-        sendMessage("Головне меню:", createMainMenuKeyboard());
     }
 } 

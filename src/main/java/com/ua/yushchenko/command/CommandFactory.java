@@ -85,13 +85,13 @@ public class CommandFactory {
             return new DailyPredictionCommand(bot, chatId, predictionService, dailyPredictionService);
         }
         if (text.equals(COMMAND_SETTINGS_BUTTON)) {
-            return new SettingsCommand(bot, chatId, predictionService, dailyPredictionService);
+            return new SettingsCommand(bot, chatId, predictionService, dailyPredictionService, stateManager);
         }
 
         // Потім перевіряємо звичайні команди
         return switch (text) {
             case COMMAND_START -> new StartCommand(bot, chatId, predictionService, dailyPredictionService, notificationService);
-            case COMMAND_SETTINGS -> new SettingsCommand(bot, chatId, predictionService, dailyPredictionService);
+            case COMMAND_SETTINGS -> new SettingsCommand(bot, chatId, predictionService, dailyPredictionService, stateManager);
             case COMMAND_QUICK -> new QuickPredictionCommand(bot, chatId, predictionService, dailyPredictionService);
             case COMMAND_DAILY -> new DailyPredictionCommand(bot, chatId, predictionService, dailyPredictionService);
             default -> new UnknownCommand(bot, chatId, predictionService, dailyPredictionService);
@@ -116,10 +116,9 @@ public class CommandFactory {
         int messageId = callbackQuery.getMessage().getMessageId();
 
         return switch (data) {
-            case CALLBACK_SETTINGS -> new SettingsCommand(bot, chatId, predictionService, dailyPredictionService);
+            case CALLBACK_SETTINGS -> new SettingsCommand(bot, chatId, predictionService, dailyPredictionService, stateManager);
             case CALLBACK_TOGGLE_NOTIFICATIONS -> new ToggleNotificationsCommand(bot, chatId, predictionService, dailyPredictionService);
             case CALLBACK_CHANGE_TIME -> new ChangeNotificationTimeCommand(bot, chatId, predictionService, dailyPredictionService, stateManager);
-            case CALLBACK_MENU -> new BackToMainMenuCommand(bot, chatId, messageId, predictionService, dailyPredictionService, stateManager);
             case CALLBACK_ANOTHER_PREDICTION -> new AnotherPredictionCommand(bot, chatId, messageId, predictionService, dailyPredictionService);
             case CALLBACK_ANOTHER_DAILY -> new AnotherDailyPredictionCommand(bot, chatId, messageId, predictionService, dailyPredictionService);
             default -> new UnknownCommand(bot, chatId, predictionService, dailyPredictionService);

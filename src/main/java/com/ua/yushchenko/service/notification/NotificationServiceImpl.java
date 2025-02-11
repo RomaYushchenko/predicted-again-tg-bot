@@ -119,7 +119,7 @@ public class NotificationServiceImpl implements NotificationService {
     public String getNotificationStatus(long chatId) {
         boolean enabled = userService.isNotificationsEnabled(chatId);
         if (!enabled) {
-            return "🔕 Сповіщення вимкнені";
+            return "🔕 Сповіщення вимкнені\n⚠️ Час сповіщень не встановлено";
         }
 
         return userService.getNotificationTime(chatId)

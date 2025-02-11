@@ -91,12 +91,7 @@ public abstract class BaseMessageCommand extends BaseCommand {
         anotherButton.setText(BUTTON_ANOTHER_PREDICTION);
         anotherButton.setCallbackData(CALLBACK_ANOTHER_PREDICTION);
 
-        InlineKeyboardButton menuButton = new InlineKeyboardButton();
-        menuButton.setText(BUTTON_BACK_TO_MENU);
-        menuButton.setCallbackData(CALLBACK_MENU);
-
         rowInline.add(anotherButton);
-        rowInline.add(menuButton);
 
         rowsInline.add(rowInline);
         markupInline.setKeyboard(rowsInline);
@@ -113,12 +108,7 @@ public abstract class BaseMessageCommand extends BaseCommand {
         anotherButton.setText(BUTTON_ANOTHER_PREDICTION);
         anotherButton.setCallbackData(CALLBACK_ANOTHER_DAILY);
 
-        InlineKeyboardButton menuButton = new InlineKeyboardButton();
-        menuButton.setText(BUTTON_BACK_TO_MENU);
-        menuButton.setCallbackData(CALLBACK_MENU);
-
         rowInline.add(anotherButton);
-        rowInline.add(menuButton);
 
         rowsInline.add(rowInline);
         markupInline.setKeyboard(rowsInline);
@@ -142,28 +132,21 @@ public abstract class BaseMessageCommand extends BaseCommand {
         timeButton.setCallbackData(CALLBACK_CHANGE_TIME);
         row2.add(timeButton);
 
-        List<InlineKeyboardButton> row3 = new ArrayList<>();
-        InlineKeyboardButton menuButton = new InlineKeyboardButton();
-        menuButton.setText(BUTTON_BACK_TO_MENU);
-        menuButton.setCallbackData(CALLBACK_MENU);
-        row3.add(menuButton);
-
         rowsInline.add(row1);
         rowsInline.add(row2);
-        rowsInline.add(row3);
 
         markupInline.setKeyboard(rowsInline);
         return markupInline;
     }
 
-    protected InlineKeyboardMarkup createBackToMenuInlineKeyboard() {
+    protected InlineKeyboardMarkup createBackToSettingsInlineKeyboard() {
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
 
         InlineKeyboardButton menuButton = new InlineKeyboardButton();
-        menuButton.setText(BUTTON_BACK_TO_MENU);
-        menuButton.setCallbackData(CALLBACK_MENU);
+        menuButton.setText("⚙️ До налаштувань");
+        menuButton.setCallbackData("settings");
         rowInline.add(menuButton);
 
         rowsInline.add(rowInline);

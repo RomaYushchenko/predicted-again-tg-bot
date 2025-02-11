@@ -29,7 +29,6 @@ public final class CommandConstants {
     public static final String CALLBACK_SETTINGS = "settings";
     public static final String CALLBACK_TOGGLE_NOTIFICATIONS = "toggle_notifications";
     public static final String CALLBACK_CHANGE_TIME = "change_notification_time";
-    public static final String CALLBACK_MENU = "back_to_menu";
     public static final String CALLBACK_ANOTHER_PREDICTION = "another_prediction";
     public static final String CALLBACK_ANOTHER_DAILY = "another_daily_prediction";
 

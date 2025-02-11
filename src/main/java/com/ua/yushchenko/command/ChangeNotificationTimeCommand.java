@@ -32,7 +32,7 @@ public class ChangeNotificationTimeCommand extends BaseMessageCommand {
             
             Щоб скасувати, натисніть кнопку "Назад у меню" нижче""";
 
-        sendMessage(message, createBackToMenuInlineKeyboard());
+        editMessage(update.getCallbackQuery().getMessage().getMessageId(), message, createBackToSettingsInlineKeyboard());
     }
 
     @Override

@@ -49,6 +49,13 @@ public class NotificationServiceImpl implements NotificationService {
             messageSender.sendMessage(user.getChatId(), prediction);
             log.info("sendDailyPrediction.X: Successfully sent notification to user {}", user.getChatId());
         } catch (TelegramApiException e) {
+
+            if (e.getMessage().contains("bot was blocked by the user")){
+                userService.removeUser(userId);
+                log.info("sendDailyPrediction.X: The user {} who blocked the bot was deleted", user.getChatId());
+                return;
+            }
+
             log.error("Failed to send daily prediction to user {}: {}", user.getChatId(), e.getMessage());
         }
     }

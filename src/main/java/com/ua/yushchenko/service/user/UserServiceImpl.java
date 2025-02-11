@@ -37,6 +37,14 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+
+    @Override
+    public void removeUser(final long userId) {
+        userRepository.findById(userId)
+                      .ifPresentOrElse(user -> userRepository.deleteById(user.getId()),
+                                       () -> log.warn("User not found with id: " + userId));
+    }
+
     @Override
     public List<User> findAllByNotificationsEnabled(boolean enabled) {
         return enabled ? userRepository.findAllByNotificationsEnabledTrue() : List.of();

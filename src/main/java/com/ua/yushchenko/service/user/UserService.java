@@ -162,4 +162,6 @@ public interface UserService {
      * @return час останнього сповіщення або пустий Optional, якщо сповіщень ще не було
      */
     Optional<LocalDateTime> getLastNotificationTime(long chatId);
+
+    void removeUser(long userId);
 } 

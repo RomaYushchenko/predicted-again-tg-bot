@@ -30,7 +30,7 @@ public class ChangeNotificationTimeCommand extends BaseMessageCommand {
             
             Наприклад: 09:00 або 21:30
             
-            Щоб скасувати, натисніть кнопку "Назад у меню" нижче""";
+            Щоб скасувати, натисніть кнопку "До налаштувань" нижче""";
 
         editMessage(update.getCallbackQuery().getMessage().getMessageId(), message, createBackToSettingsInlineKeyboard());
     }

@@ -76,7 +76,9 @@ public class TimeMessageCommand extends BaseMessageCommand {
             String errorMessage = """
                     ❌ Невірний формат часу. Будь ласка, введіть час у форматі ГГ:ХХ (Час у Києві)
                     
-                    Наприклад: 09:00 або 21:30""";
+                    Наприклад: 09:00 або 21:30
+                  
+                    Щоб скасувати, натисніть кнопку "До налаштувань" нижче""";
             
             // Створюємо клавіатуру для повернення до меню
             InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
@@ -84,8 +86,8 @@ public class TimeMessageCommand extends BaseMessageCommand {
             List<InlineKeyboardButton> row = new ArrayList<>();
             
             InlineKeyboardButton menuButton = new InlineKeyboardButton();
-            menuButton.setText("📋 Меню");
-            menuButton.setCallbackData("back_to_menu");
+            menuButton.setText("⚙️ До налаштувань");
+            menuButton.setCallbackData("settings");
             
             row.add(menuButton);
             buttons.add(row);

@@ -42,14 +42,4 @@ public class PredictionServiceImpl implements PredictionService {
         userService.saveLastPrediction(chatId, prediction);
         return prediction;
     }
-
-    @Override
-    public void addPredictionStrategy(PredictionStrategy strategy) {
-        // Not used in current implementation
-    }
-
-    @Override
-    public void removePredictionStrategy(PredictionStrategy strategy) {
-        // Not used in current implementation
-    }
 } 

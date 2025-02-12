@@ -58,26 +58,6 @@ public class PredictionLoaderServiceImpl implements PredictionLoaderService {
     }
 
     @Override
-    @Cacheable(value = "predictions")
-    public List<Prediction> getAllPredictions() {
-        return predictionRepository.findAll();
-    }
-
-    @Override
-    @Cacheable(value = "predictions", key = "#category")
-    public List<Prediction> getPredictionsByCategory(String category) {
-        return predictionRepository.findAllByCategory(category);
-    }
-
-    @Override
-    @CacheEvict(value = "predictions", allEntries = true)
-    public Prediction savePrediction(Prediction prediction) {
-        prediction.setCreatedAt(LocalDateTime.now());
-        prediction.setUpdatedAt(LocalDateTime.now());
-        return predictionRepository.save(prediction);
-    }
-
-    @Override
     public boolean arePredictionsLoaded() {
         return predictionRepository.existsBy();
     }

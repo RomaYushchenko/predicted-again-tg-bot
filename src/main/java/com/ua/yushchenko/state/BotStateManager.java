@@ -1,12 +1,13 @@
 package com.ua.yushchenko.state;
 
-import org.springframework.stereotype.Component;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.stereotype.Component;
+
 @Component
 public class BotStateManager {
+
     private final Map<Long, BotState> userStates;
 
     public BotStateManager() {

@@ -3,7 +3,6 @@ package com.ua.yushchenko;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 
 /**
  * Main application class for the Predictions Telegram Bot.
@@ -18,8 +17,8 @@ public class PredictionsApplication {
     static {
         // Load environment variables before Spring context initialization
         Dotenv.configure()
-                .ignoreIfMissing()
-                .load();
+              .ignoreIfMissing()
+              .load();
     }
 
     public static void main(String[] args) {

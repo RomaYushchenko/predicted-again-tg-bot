@@ -49,9 +49,6 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Value("${bot.token}")
     private String botToken;
 
-    private final BotSettings botSettings;
-    private final ExecutorService executorService;
-    private final PredictionService predictionService;
     private final NotificationService notificationService;
     private final TelegramBotService telegramBotService;
     private final CommandFactory commandFactory;
@@ -60,23 +57,18 @@ public class TelegramBot extends TelegramLongPollingBot {
      * Creates a new TelegramBot instance with required dependencies.
      *
      * @param botSettings bot configuration containing token and username
-     * @param predictionService service for generating predictions
      * @param notificationService service for managing notifications
      * @param telegramBotService service for Telegram API interactions
      * @param commandFactory factory for creating command instances
      */
     public TelegramBot(BotSettings botSettings,
-                      PredictionService predictionService,
                       NotificationService notificationService,
                       TelegramBotService telegramBotService,
                       CommandFactory commandFactory) {
         super(botSettings.getToken());
-        this.botSettings = botSettings;
-        this.predictionService = predictionService;
         this.notificationService = notificationService;
         this.telegramBotService = telegramBotService;
         this.commandFactory = commandFactory;
-        this.executorService = Executors.newFixedThreadPool(10);
         log.info("TelegramBot initialized with name: {}", botSettings.getName());
     }
 
@@ -139,7 +131,7 @@ public class TelegramBot extends TelegramLongPollingBot {
      * Handles incoming messages.
      * Creates and executes appropriate commands based on message content.
      *
-     * @param message the message to handle
+     * @param update the message to handle
      */
     private void handleTextMessage(Update update) {
         if (update.getMessage() == null || update.getMessage().getText() == null) {
@@ -165,7 +157,7 @@ public class TelegramBot extends TelegramLongPollingBot {
      * Handles callback queries from inline keyboard buttons.
      * Creates and executes appropriate commands based on callback data.
      *
-     * @param callbackQuery the callback query to handle
+     * @param update the callback query to handle
      */
     private void handleCallbackQuery(Update update) {
         if (update.getCallbackQuery() == null || update.getCallbackQuery().getMessage() == null) {

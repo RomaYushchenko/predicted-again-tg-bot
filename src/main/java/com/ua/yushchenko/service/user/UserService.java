@@ -1,16 +1,18 @@
 package com.ua.yushchenko.service.user;
 
-import com.ua.yushchenko.model.User;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import com.ua.yushchenko.model.User;
 
 /**
  * Сервіс для роботи з користувачами.
  * Відповідає за управління користувачами та їх налаштуваннями.
  */
 public interface UserService {
+
     /**
      * Знаходить користувача за ID.
      *
@@ -39,7 +41,7 @@ public interface UserService {
      * Зберігає час сповіщень для користувача.
      *
      * @param chatId ID чату користувача
-     * @param time час сповіщень
+     * @param time   час сповіщень
      */
     void saveNotificationTime(long chatId, LocalDateTime time);
 
@@ -54,7 +56,7 @@ public interface UserService {
     /**
      * Зберігає стан сповіщень для користувача.
      *
-     * @param chatId ID чату користувача
+     * @param chatId  ID чату користувача
      * @param enabled стан сповіщень
      */
     void saveNotificationState(long chatId, boolean enabled);
@@ -70,7 +72,7 @@ public interface UserService {
     /**
      * Зберігає останнє передбачення для користувача.
      *
-     * @param chatId ID чату користувача
+     * @param chatId     ID чату користувача
      * @param prediction текст передбачення
      */
     void saveLastPrediction(long chatId, String prediction);
@@ -116,7 +118,7 @@ public interface UserService {
     /**
      * Зберігає часовий пояс для користувача.
      *
-     * @param chatId ID чату користувача
+     * @param chatId   ID чату користувача
      * @param timeZone часовий пояс
      */
     void saveTimeZone(long chatId, String timeZone);
@@ -132,7 +134,7 @@ public interface UserService {
     /**
      * Конвертує час з часового поясу користувача в UTC.
      *
-     * @param chatId ID чату користувача
+     * @param chatId        ID чату користувача
      * @param localDateTime локальний час користувача
      * @return час в UTC
      */
@@ -141,7 +143,7 @@ public interface UserService {
     /**
      * Конвертує час з UTC в часовий пояс користувача.
      *
-     * @param chatId ID чату користувача
+     * @param chatId      ID чату користувача
      * @param utcDateTime час в UTC
      * @return локальний час користувача
      */
@@ -151,7 +153,7 @@ public interface UserService {
      * Зберігає час останнього сповіщення для користувача.
      *
      * @param chatId ID чату користувача
-     * @param time час останнього сповіщення
+     * @param time   час останнього сповіщення
      */
     void saveLastNotificationTime(long chatId, LocalDateTime time);
 

@@ -84,14 +84,6 @@ public class NotificationServiceImpl implements NotificationService {
         return userService.isNotificationsEnabled(chatId);
     }
 
-    @Override
-    public String formatTime(LocalDateTime time) {
-        if (time == null) {
-            return "не встановлено";
-        }
-        return String.format("%02d:%02d", time.getHour(), time.getMinute());
-    }
-
     private boolean shouldSendNotification(User user, LocalDateTime now) {
         return isTimeToSendNotification(user.getNotificationTime(), now);
     }

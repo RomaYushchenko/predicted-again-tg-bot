@@ -45,6 +45,4 @@ public interface NotificationService {
      * @return true, якщо сповіщення увімкнені
      */
     boolean isNotificationsEnabled(long chatId);
-
-    String formatTime(LocalDateTime time);
 } 

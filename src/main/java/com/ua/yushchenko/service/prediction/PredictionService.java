@@ -26,20 +26,4 @@ public interface PredictionService {
      * @return generated daily prediction text
      */
     String generateDailyPrediction(long chatId);
-
-    /**
-     * Adds a new prediction generation strategy.
-     * Allows for dynamic extension of prediction generation capabilities.
-     *
-     * @param strategy prediction generation strategy to add
-     */
-    void addPredictionStrategy(PredictionStrategy strategy);
-
-    /**
-     * Removes a prediction generation strategy.
-     * Allows for dynamic reduction of prediction generation capabilities.
-     *
-     * @param strategy prediction generation strategy to remove
-     */
-    void removePredictionStrategy(PredictionStrategy strategy);
 } 

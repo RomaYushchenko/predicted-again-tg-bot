@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.ua.yushchenko.bot.TelegramBot;
 import com.ua.yushchenko.command.CommandFactory;
-import com.ua.yushchenko.menu.MenuFactory;
 import com.ua.yushchenko.model.Prediction;
 import com.ua.yushchenko.repository.UserRepository;
 import com.ua.yushchenko.service.DailyPredictionService;
@@ -115,7 +114,6 @@ public class BotConfiguration {
      * Creates the main TelegramBot bean.
      *
      * @param botSettings           bot configuration
-     * @param predictionService   service for generating predictions
      * @param notificationService service for managing notifications
      * @param telegramBotService  service for Telegram API interactions
      * @param commandFactory      factory for creating command instances
@@ -123,12 +121,10 @@ public class BotConfiguration {
      */
     @Bean
     public TelegramBot telegramBot(BotConfig.BotSettings botSettings,
-                                   PredictionService predictionService,
                                    NotificationService notificationService,
                                    @Lazy TelegramBotService telegramBotService,
                                    @Lazy CommandFactory commandFactory) {
-        return new TelegramBot(botSettings, predictionService, notificationService,
-                               telegramBotService, commandFactory);
+        return new TelegramBot(botSettings, notificationService, telegramBotService, commandFactory);
     }
 
     /**
@@ -157,13 +153,11 @@ public class BotConfiguration {
      * Creates TelegramBotService bean for handling bot operations.
      *
      * @param telegramMessageSender sender for Telegram messages
-     * @param menuFactory           factory for creating menus
      * @return configured TelegramBotService instance
      */
     @Bean
-    public TelegramBotService telegramBotService(TelegramMessageSender telegramMessageSender,
-                                                 MenuFactory menuFactory) {
-        return new TelegramBotServiceImpl(telegramMessageSender, menuFactory);
+    public TelegramBotService telegramBotService(TelegramMessageSender telegramMessageSender) {
+        return new TelegramBotServiceImpl(telegramMessageSender);
     }
 
     /**

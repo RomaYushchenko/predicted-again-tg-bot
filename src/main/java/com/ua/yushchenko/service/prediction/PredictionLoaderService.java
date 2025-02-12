@@ -19,29 +19,6 @@ public interface PredictionLoaderService {
     void loadPredictions();
 
     /**
-     * Gets all predictions from the database.
-     *
-     * @return list of all predictions
-     */
-    List<Prediction> getAllPredictions();
-
-    /**
-     * Gets predictions by category.
-     *
-     * @param category the category to filter by
-     * @return list of predictions in the specified category
-     */
-    List<Prediction> getPredictionsByCategory(String category);
-
-    /**
-     * Saves a new prediction to the database.
-     *
-     * @param prediction the prediction to save
-     * @return the saved prediction
-     */
-    Prediction savePrediction(Prediction prediction);
-
-    /**
      * Checks if predictions are already loaded in the database.
      *
      * @return true if predictions exist, false otherwise

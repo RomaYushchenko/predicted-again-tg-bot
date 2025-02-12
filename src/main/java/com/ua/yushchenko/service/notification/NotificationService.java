@@ -1,5 +1,6 @@
 package com.ua.yushchenko.service.notification;
 
+import com.ua.yushchenko.model.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.time.LocalDateTime;
@@ -14,12 +15,6 @@ public interface NotificationService {
      */
     void sendNotifications() throws TelegramApiException;
 
-    /**
-     * Відправляє щоденне передбачення користувачу.
-     *
-     * @param userId ID користувача
-     */
-    void sendDailyPrediction(Long userId);
 
     /**
      * Запускає планувальник сповіщень.
@@ -27,18 +22,6 @@ public interface NotificationService {
      */
     void startNotificationScheduler();
 
-    /**
-     * Зупиняє планувальник сповіщень.
-     */
-    void stopNotificationScheduler();
-
-    /**
-     * Перевіряє, чи потрібно відправити сповіщення користувачу.
-     *
-     * @param chatId ID чату користувача
-     * @return true, якщо потрібно відправити сповіщення
-     */
-    boolean shouldSendNotification(long chatId);
 
     /**
      * Встановлює час сповіщень для користувача.
@@ -47,20 +30,6 @@ public interface NotificationService {
      * @param time час сповіщень
      */
     void setNotificationTime(long chatId, LocalDateTime time);
-
-    /**
-     * Вмикає сповіщення для користувача.
-     *
-     * @param chatId ID чату користувача
-     */
-    void enableNotifications(long chatId);
-
-    /**
-     * Вимикає сповіщення для користувача.
-     *
-     * @param chatId ID чату користувача
-     */
-    void disableNotifications(long chatId);
 
     /**
      * Перемикає стан сповіщень для користувача.
@@ -77,15 +46,5 @@ public interface NotificationService {
      */
     boolean isNotificationsEnabled(long chatId);
 
-    /**
-     * Отримує статус сповіщень для користувача.
-     *
-     * @param chatId ID чату користувача
-     * @return текстовий опис статусу сповіщень
-     */
-    String getNotificationStatus(long chatId);
-
-    void updateNotificationTime(Long userId, LocalDateTime notificationTime);
-    void updateLastNotificationTime(Long userId, LocalDateTime lastNotificationTime);
     String formatTime(LocalDateTime time);
 } 

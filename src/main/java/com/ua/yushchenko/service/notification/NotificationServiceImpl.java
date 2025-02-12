@@ -1,5 +1,9 @@
 package com.ua.yushchenko.service.notification;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+
 import com.ua.yushchenko.model.User;
 import com.ua.yushchenko.service.MessageSender;
 import com.ua.yushchenko.service.prediction.PredictionService;
@@ -10,10 +14,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-
 /**
  * Реалізація сервісу сповіщень.
  * Відповідає за відправку щоденних передбачень та управління розкладом сповіщень.
@@ -22,6 +22,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
+
     private final UserService userService;
     private final PredictionService predictionService;
     private final MessageSender messageSender;
@@ -35,43 +36,32 @@ public class NotificationServiceImpl implements NotificationService {
         for (User user : users) {
             if (user.isNotificationsEnabled()
                     && user.getNotificationTime() != null && shouldSendNotification(user, now)) {
-                sendDailyPrediction(user.getId());
-                updateLastNotificationTime(user.getId(), now);
+
+                String prediction = predictionService.generateDailyPrediction(user.getChatId());
+
+                try {
+                    messageSender.sendMessage(user.getChatId(), prediction);
+
+                    user.setLastNotificationTime(now);
+                    userService.save(user);
+
+                    log.info("sendDailyPrediction.X: Successfully sent notification to user {}", user.getChatId());
+                } catch (TelegramApiException e) {
+                    if (e.getMessage().contains("bot was blocked by the user")) {
+                        userService.removeUser(user.getId());
+                        log.info("sendDailyPrediction.X: The user {} who blocked the bot was deleted",
+                                 user.getChatId());
+                        return;
+                    }
+
+                    log.error("Failed to send daily prediction to user {}: {}", user.getChatId(), e.getMessage());
+                } catch (Exception e) {
+                    log.error("Unexpected exception: Failed to send daily prediction to user {}: {}",
+                              user.getChatId(), e.getMessage());
+                }
+
             }
         }
-    }
-
-    @Override
-    public void sendDailyPrediction(Long userId) {
-        User user = userService.findById(userId);
-        String prediction = predictionService.generateDailyPrediction(user.getChatId());
-        try {
-            messageSender.sendMessage(user.getChatId(), prediction);
-            log.info("sendDailyPrediction.X: Successfully sent notification to user {}", user.getChatId());
-        } catch (TelegramApiException e) {
-
-            if (e.getMessage().contains("bot was blocked by the user")){
-                userService.removeUser(userId);
-                log.info("sendDailyPrediction.X: The user {} who blocked the bot was deleted", user.getChatId());
-                return;
-            }
-
-            log.error("Failed to send daily prediction to user {}: {}", user.getChatId(), e.getMessage());
-        }
-    }
-
-    @Override
-    public void updateNotificationTime(Long userId, LocalDateTime notificationTime) {
-        User user = userService.findById(userId);
-        user.setNotificationTime(notificationTime);
-        userService.save(user);
-    }
-
-    @Override
-    public void updateLastNotificationTime(Long userId, LocalDateTime lastNotificationTime) {
-        User user = userService.findById(userId);
-        user.setLastNotificationTime(lastNotificationTime);
-        userService.save(user);
     }
 
     @Override
@@ -80,29 +70,8 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void stopNotificationScheduler() {
-        log.info("Notification scheduler stopped");
-    }
-
-    @Override
-    public boolean shouldSendNotification(long chatId) {
-        User user = userService.findById(chatId);
-        return user.isNotificationsEnabled() && user.getNotificationTime() != null;
-    }
-
-    @Override
     public void setNotificationTime(long chatId, LocalDateTime time) {
         userService.saveNotificationTime(chatId, time);
-    }
-
-    @Override
-    public void enableNotifications(long chatId) {
-        userService.saveNotificationState(chatId, true);
-    }
-
-    @Override
-    public void disableNotifications(long chatId) {
-        userService.saveNotificationState(chatId, false);
     }
 
     @Override
@@ -113,18 +82,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public boolean isNotificationsEnabled(long chatId) {
         return userService.isNotificationsEnabled(chatId);
-    }
-
-    @Override
-    public String getNotificationStatus(long chatId) {
-        boolean enabled = userService.isNotificationsEnabled(chatId);
-        if (!enabled) {
-            return "🔕 Сповіщення вимкнені\n⚠️ Час сповіщень не встановлено";
-        }
-
-        return userService.getNotificationTime(chatId)
-            .map(time -> "🔔 Сповіщення увімкнені\n⏰ Час сповіщень: " + formatTime(time.plusHours(2)))
-            .orElse("🔔 Сповіщення увімкнені\n⚠️ Час сповіщень не встановлено");
     }
 
     @Override
@@ -147,8 +104,8 @@ public class NotificationServiceImpl implements NotificationService {
         LocalTime scheduledTime = notificationTime.toLocalTime();
         LocalTime currentTime = now.toLocalTime();
 
-        return currentTime.isAfter(scheduledTime.minusMinutes(1)) && 
-               currentTime.isBefore(scheduledTime.plusMinutes(1));
+        return currentTime.isAfter(scheduledTime.minusMinutes(1)) &&
+                currentTime.isBefore(scheduledTime.plusMinutes(1));
     }
 
     private boolean isSameDay(LocalDateTime date1, LocalDateTime date2) {

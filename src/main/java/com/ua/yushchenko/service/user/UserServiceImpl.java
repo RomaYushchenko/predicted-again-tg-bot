@@ -28,8 +28,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(Long userId) {
-        return userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        Optional<User> user = userRepository.findById(userId);
+
+        if (user.isEmpty()) {
+            log.error("User with id {} not found", userId);
+            return null;
+        }
+
+        return user.get();
     }
 
     @Override
@@ -42,7 +48,7 @@ public class UserServiceImpl implements UserService {
     public void removeUser(final long userId) {
         userRepository.findById(userId)
                       .ifPresentOrElse(user -> userRepository.deleteById(user.getId()),
-                                       () -> log.warn("User not found with id: " + userId));
+                                       () -> log.warn("removeUser.X: User with id {} not found", userId));
     }
 
     @Override

@@ -94,13 +94,8 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         LocalTime scheduledTime = notificationTime.toLocalTime();
-        LocalTime currentTime = now.toLocalTime();
+        LocalTime currentTime = now.toLocalTime().withSecond(0).withNano(0);
 
-        return currentTime.isAfter(scheduledTime.minusMinutes(1)) &&
-                currentTime.isBefore(scheduledTime.plusMinutes(1));
-    }
-
-    private boolean isSameDay(LocalDateTime date1, LocalDateTime date2) {
-        return date1.toLocalDate().equals(date2.toLocalDate());
+        return currentTime.equals(scheduledTime);
     }
 } 

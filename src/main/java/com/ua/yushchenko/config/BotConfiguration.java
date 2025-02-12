@@ -105,9 +105,10 @@ public class BotConfiguration {
                                          PredictionService predictionService,
                                          DailyPredictionService dailyPredictionService,
                                          NotificationService notificationService,
-                                         BotStateManager stateManager) {
+                                         BotStateManager stateManager,
+                                         UserService userService) {
         return new CommandFactory(bot, predictionService, dailyPredictionService,
-                                  notificationService, stateManager);
+                                  notificationService, stateManager, userService);
     }
 
     /**

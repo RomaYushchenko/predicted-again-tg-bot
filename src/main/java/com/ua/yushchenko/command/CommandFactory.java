@@ -5,6 +5,7 @@ import com.ua.yushchenko.service.DailyPredictionService;
 import com.ua.yushchenko.service.notification.NotificationService;
 import com.ua.yushchenko.service.prediction.PredictionService;
 import com.ua.yushchenko.service.telegram.TelegramBotService;
+import com.ua.yushchenko.service.user.UserService;
 import com.ua.yushchenko.state.BotStateManager;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -32,6 +33,7 @@ public class CommandFactory {
     private final DailyPredictionService dailyPredictionService;
     private final NotificationService notificationService;
     private final BotStateManager stateManager;
+    private final UserService userService;
     private static final Logger log = LoggerFactory.getLogger(CommandFactory.class);
 
     /**
@@ -44,15 +46,16 @@ public class CommandFactory {
      * @param stateManager manager for bot states
      */
     public CommandFactory(TelegramBot bot,
-                        PredictionService predictionService,
-                        DailyPredictionService dailyPredictionService,
-                        NotificationService notificationService,
-                        BotStateManager stateManager) {
+                          PredictionService predictionService,
+                          DailyPredictionService dailyPredictionService,
+                          NotificationService notificationService,
+                          BotStateManager stateManager, final UserService userService) {
         this.bot = bot;
         this.predictionService = predictionService;
         this.dailyPredictionService = dailyPredictionService;
         this.notificationService = notificationService;
         this.stateManager = stateManager;
+        this.userService = userService;
     }
 
     /**
@@ -90,7 +93,7 @@ public class CommandFactory {
 
         // Потім перевіряємо звичайні команди
         return switch (text) {
-            case COMMAND_START -> new StartCommand(bot, chatId, predictionService, dailyPredictionService, notificationService);
+            case COMMAND_START -> new StartCommand(bot, chatId, predictionService, dailyPredictionService, notificationService, userService);
             case COMMAND_SETTINGS -> new SettingsCommand(bot, chatId, predictionService, dailyPredictionService, stateManager);
             case COMMAND_QUICK -> new QuickPredictionCommand(bot, chatId, predictionService, dailyPredictionService);
             case COMMAND_DAILY -> new DailyPredictionCommand(bot, chatId, predictionService, dailyPredictionService);

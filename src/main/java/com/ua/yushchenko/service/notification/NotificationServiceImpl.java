@@ -51,7 +51,7 @@ public class NotificationServiceImpl implements NotificationService {
                         userService.removeUser(user.getId());
                         log.info("sendDailyPrediction.X: The user {} who blocked the bot was deleted",
                                  user.getChatId());
-                        return;
+                        continue;
                     }
 
                     log.error("Failed to send daily prediction to user {}: {}", user.getChatId(), e.getMessage());

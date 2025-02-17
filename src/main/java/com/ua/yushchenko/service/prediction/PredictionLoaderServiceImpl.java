@@ -37,9 +37,13 @@ public class PredictionLoaderServiceImpl implements PredictionLoaderService {
     @Override
     @Transactional
     public void loadPredictions() {
-        if (!arePredictionsLoaded()) {
-            log.info("Loading predictions from file...");
+        //if (!arePredictionsLoaded()) {
+            //log.info("Loading predictions from file...");
             try {
+                predictionRepository.findAll()
+                                    .forEach(prediction -> predictionRepository.deleteById(prediction.getId()));
+                log.info("Predictions are removed from database");
+                log.info("Loading predictions from file...");
                 Set<Prediction> predictions = loadPredictionsFromFile();
                 LocalDateTime now = LocalDateTime.now();
                 predictions.forEach(prediction -> {
@@ -52,9 +56,9 @@ public class PredictionLoaderServiceImpl implements PredictionLoaderService {
                 log.error("Error loading predictions from file: {}", e.getMessage());
                 throw new RuntimeException("Failed to load predictions", e);
             }
-        } else {
-            log.info("Predictions are already loaded in the database");
-        }
+        //} else {
+           // log.info("Predictions are already loaded in the database");
+       // }
     }
 
     @Override

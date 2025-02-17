@@ -1,5 +1,9 @@
 package com.ua.yushchenko.service.prediction;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Set;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ua.yushchenko.model.Prediction;
@@ -7,16 +11,9 @@ import com.ua.yushchenko.repository.PredictionRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Implementation of PredictionLoaderService.
@@ -26,6 +23,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class PredictionLoaderServiceImpl implements PredictionLoaderService {
+
     private final PredictionRepository predictionRepository;
     private final ObjectMapper objectMapper;
 
@@ -37,13 +35,9 @@ public class PredictionLoaderServiceImpl implements PredictionLoaderService {
     @Override
     @Transactional
     public void loadPredictions() {
-        //if (!arePredictionsLoaded()) {
-            //log.info("Loading predictions from file...");
+        if (!arePredictionsLoaded()) {
+            log.info("Loading predictions from file...");
             try {
-                predictionRepository.findAll()
-                                    .forEach(prediction -> predictionRepository.deleteById(prediction.getId()));
-                log.info("Predictions are removed from database");
-                log.info("Loading predictions from file...");
                 Set<Prediction> predictions = loadPredictionsFromFile();
                 LocalDateTime now = LocalDateTime.now();
                 predictions.forEach(prediction -> {
@@ -56,9 +50,9 @@ public class PredictionLoaderServiceImpl implements PredictionLoaderService {
                 log.error("Error loading predictions from file: {}", e.getMessage());
                 throw new RuntimeException("Failed to load predictions", e);
             }
-        //} else {
-           // log.info("Predictions are already loaded in the database");
-       // }
+        } else {
+            log.info("Predictions are already loaded in the database");
+        }
     }
 
     @Override
@@ -69,8 +63,9 @@ public class PredictionLoaderServiceImpl implements PredictionLoaderService {
     private Set<Prediction> loadPredictionsFromFile() throws IOException {
         var resource = new ClassPathResource("predictions.json");
         return objectMapper.readValue(
-            resource.getInputStream(),
-            new TypeReference<Set<Prediction>>() {}
-        );
+                resource.getInputStream(),
+                new TypeReference<Set<Prediction>>() {
+                }
+                                     );
     }
 } 

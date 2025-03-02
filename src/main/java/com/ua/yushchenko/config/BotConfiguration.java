@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.ua.yushchenko.bot.TelegramBot;
 import com.ua.yushchenko.command.CommandFactory;
+import com.ua.yushchenko.common.SplitMix64RandomGenerator;
 import com.ua.yushchenko.model.Prediction;
 import com.ua.yushchenko.repository.UserRepository;
 import com.ua.yushchenko.service.DailyPredictionService;
@@ -180,8 +181,9 @@ public class BotConfiguration {
      * @return configured PredictionService instance
      */
     @Bean
-    public PredictionService predictionService(UserService userService, List<Prediction> predictions) {
-        return new PredictionServiceImpl(userService, predictions);
+    public PredictionService predictionService(UserService userService, List<Prediction> predictions,
+                                               SplitMix64RandomGenerator splitMix64RandomGenerator) {
+        return new PredictionServiceImpl(userService, predictions, splitMix64RandomGenerator);
     }
 
     /**

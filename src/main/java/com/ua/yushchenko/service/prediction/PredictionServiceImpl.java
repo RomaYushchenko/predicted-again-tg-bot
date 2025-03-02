@@ -1,13 +1,13 @@
 package com.ua.yushchenko.service.prediction;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.ua.yushchenko.common.SplitMix64RandomGenerator;
 import com.ua.yushchenko.model.Prediction;
 import com.ua.yushchenko.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of PredictionService.
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class PredictionServiceImpl implements PredictionService {
     private final UserService userService;
     private final List<Prediction> predictions;
-    private final Random random = new Random();
+    private final SplitMix64RandomGenerator randomGenerator;
 
     @Override
     public String generateQuickPrediction(long chatId) {
@@ -26,7 +26,7 @@ public class PredictionServiceImpl implements PredictionService {
             //.filter(p -> "Загальні".equals(p.getCategory()))
             .collect(Collectors.toList());
 
-        String prediction = generalPredictions.get(random.nextInt(generalPredictions.size())).getText();
+        String prediction = generalPredictions.get(randomGenerator.nextInt(generalPredictions.size())).getText();
         userService.saveLastPrediction(chatId, prediction);
         return prediction;
     }
@@ -36,7 +36,7 @@ public class PredictionServiceImpl implements PredictionService {
         String lastPrediction = userService.getLastPrediction(chatId);
         String prediction;
         do {
-            prediction = predictions.get(random.nextInt(predictions.size())).getText();
+            prediction = predictions.get(randomGenerator.nextInt(predictions.size())).getText();
         } while (prediction.equals(lastPrediction) && predictions.size() > 1);
 
         userService.saveLastPrediction(chatId, prediction);

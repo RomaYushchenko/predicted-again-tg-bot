@@ -93,7 +93,7 @@ public class NotificationServiceImpl implements NotificationService {
             return false;
         }
 
-        LocalTime scheduledTime = notificationTime.toLocalTime();
+        LocalTime scheduledTime = notificationTime.toLocalTime().minusHours(1);
         LocalTime currentTime = now.toLocalTime().withSecond(0).withNano(0);
 
         return currentTime.equals(scheduledTime);

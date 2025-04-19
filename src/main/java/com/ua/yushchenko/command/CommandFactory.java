@@ -2,9 +2,8 @@ package com.ua.yushchenko.command;
 
 import com.ua.yushchenko.bot.TelegramBot;
 import com.ua.yushchenko.service.DailyPredictionService;
-import com.ua.yushchenko.service.notification.NotificationService;
+import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.prediction.PredictionService;
-import com.ua.yushchenko.service.telegram.TelegramBotService;
 import com.ua.yushchenko.service.user.UserService;
 import com.ua.yushchenko.state.BotStateManager;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -12,10 +11,6 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.Update;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.ua.yushchenko.command.CommandConstants.*;
 
@@ -28,12 +23,15 @@ import static com.ua.yushchenko.command.CommandConstants.*;
  */
 @Component
 public class CommandFactory {
+    private final Long predictionTimeZone;
+
     private final TelegramBot bot;
     private final PredictionService predictionService;
     private final DailyPredictionService dailyPredictionService;
-    private final NotificationService notificationService;
+    private final NotificationSchedulerService notificationSchedulerService;
     private final BotStateManager stateManager;
     private final UserService userService;
+
     private static final Logger log = LoggerFactory.getLogger(CommandFactory.class);
 
     /**
@@ -42,20 +40,24 @@ public class CommandFactory {
      * @param bot the main bot instance
      * @param predictionService service for generating predictions
      * @param dailyPredictionService service for handling daily predictions
-     * @param notificationService service for managing notifications
+     * @param notificationSchedulerService service for managing notifications
      * @param stateManager manager for bot states
      */
     public CommandFactory(TelegramBot bot,
                           PredictionService predictionService,
                           DailyPredictionService dailyPredictionService,
-                          NotificationService notificationService,
-                          BotStateManager stateManager, final UserService userService) {
+                          NotificationSchedulerService notificationSchedulerService,
+                          BotStateManager stateManager,
+                          final UserService userService,
+                          final Long predictionTimeZone) {
         this.bot = bot;
         this.predictionService = predictionService;
         this.dailyPredictionService = dailyPredictionService;
-        this.notificationService = notificationService;
+        this.notificationSchedulerService = notificationSchedulerService;
         this.stateManager = stateManager;
         this.userService = userService;
+
+        this.predictionTimeZone = predictionTimeZone;
     }
 
     /**
@@ -77,7 +79,7 @@ public class CommandFactory {
 
         // Check if user is awaiting time input
         if (stateManager.isAwaitingTime(chatId)) {
-            return new TimeMessageCommand(bot, message, predictionService, dailyPredictionService, stateManager);
+            return new TimeMessageCommand(bot, message, predictionService, dailyPredictionService, stateManager, notificationSchedulerService, predictionTimeZone);
         }
 
         // Спочатку перевіряємо команди з емодзі
@@ -88,13 +90,13 @@ public class CommandFactory {
             return new DailyPredictionCommand(bot, chatId, predictionService, dailyPredictionService);
         }
         if (text.equals(COMMAND_SETTINGS_BUTTON)) {
-            return new SettingsCommand(bot, chatId, predictionService, dailyPredictionService, stateManager);
+            return new SettingsCommand(bot, chatId, predictionService, dailyPredictionService, stateManager, predictionTimeZone);
         }
 
         // Потім перевіряємо звичайні команди
         return switch (text) {
-            case COMMAND_START -> new StartCommand(bot, chatId, predictionService, dailyPredictionService, notificationService, userService);
-            case COMMAND_SETTINGS -> new SettingsCommand(bot, chatId, predictionService, dailyPredictionService, stateManager);
+            case COMMAND_START -> new StartCommand(bot, chatId, predictionService, dailyPredictionService, notificationSchedulerService, userService, predictionTimeZone);
+            case COMMAND_SETTINGS -> new SettingsCommand(bot, chatId, predictionService, dailyPredictionService, stateManager, predictionTimeZone);
             case COMMAND_QUICK -> new QuickPredictionCommand(bot, chatId, predictionService, dailyPredictionService);
             case COMMAND_DAILY -> new DailyPredictionCommand(bot, chatId, predictionService, dailyPredictionService);
             default -> new UnknownCommand(bot, chatId, predictionService, dailyPredictionService);
@@ -119,8 +121,8 @@ public class CommandFactory {
         int messageId = callbackQuery.getMessage().getMessageId();
 
         return switch (data) {
-            case CALLBACK_SETTINGS -> new SettingsCommand(bot, chatId, predictionService, dailyPredictionService, stateManager);
-            case CALLBACK_TOGGLE_NOTIFICATIONS -> new ToggleNotificationsCommand(bot, chatId, predictionService, dailyPredictionService);
+            case CALLBACK_SETTINGS -> new SettingsCommand(bot, chatId, predictionService, dailyPredictionService, stateManager, predictionTimeZone);
+            case CALLBACK_TOGGLE_NOTIFICATIONS -> new ToggleNotificationsCommand(bot, chatId, predictionService, dailyPredictionService, predictionTimeZone);
             case CALLBACK_CHANGE_TIME -> new ChangeNotificationTimeCommand(bot, chatId, predictionService, dailyPredictionService, stateManager);
             case CALLBACK_ANOTHER_PREDICTION -> new AnotherPredictionCommand(bot, chatId, messageId, predictionService, dailyPredictionService);
             case CALLBACK_ANOTHER_DAILY -> new AnotherDailyPredictionCommand(bot, chatId, messageId, predictionService, dailyPredictionService);

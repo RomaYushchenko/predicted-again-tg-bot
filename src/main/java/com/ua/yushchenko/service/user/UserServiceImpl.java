@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class UserServiceImpl implements UserService {
+
     private final UserRepository userRepository;
 
     @Override
@@ -36,6 +37,23 @@ public class UserServiceImpl implements UserService {
         }
 
         return user.get();
+    }
+
+    @Override
+    public User findByChatId(final Long chatId) {
+        final Optional<User> user = userRepository.findByChatId(chatId);
+
+        if (user.isEmpty()) {
+            log.error("User for chatId {} not found", chatId);
+            return null;
+        }
+
+        return user.get();
+    }
+
+    @Override
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
     @Override

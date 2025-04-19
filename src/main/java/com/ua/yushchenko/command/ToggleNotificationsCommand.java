@@ -6,15 +6,21 @@ import java.util.Optional;
 import com.ua.yushchenko.bot.TelegramBot;
 import com.ua.yushchenko.service.DailyPredictionService;
 import com.ua.yushchenko.service.prediction.PredictionService;
+import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public class ToggleNotificationsCommand extends BaseMessageCommand {
 
+    private final Long predictionTimeZone;
+
     public ToggleNotificationsCommand(TelegramBot bot, long chatId,
                                       PredictionService predictionService,
-                                      DailyPredictionService dailyPredictionService) {
+                                      DailyPredictionService dailyPredictionService,
+                                      final Long predictionTimeZone) {
         super(bot, chatId, predictionService, dailyPredictionService);
+
+        this.predictionTimeZone = predictionTimeZone;
     }
 
     @Override
@@ -26,7 +32,7 @@ public class ToggleNotificationsCommand extends BaseMessageCommand {
         StringBuilder message = new StringBuilder("⚙️ Налаштування\n\n");
         message.append(wasEnabled ? "🔔 Сповіщення: Увімкнено" : "🔕 Сповіщення: Вимкнено")
                .append("\n")
-               .append(notificationTime.map(localDateTime -> "🕒 Час сповіщень: " + formatTime(localDateTime.plusHours(2)))
+               .append(notificationTime.map(localDateTime -> "🕒 Час сповіщень: " + formatTime(localDateTime.plusHours(predictionTimeZone)))
                                        .orElse("⚠️ Час сповіщень: Не встановлено"));
 
         editMessage(update.getCallbackQuery().getMessage().getMessageId(), message.toString(),

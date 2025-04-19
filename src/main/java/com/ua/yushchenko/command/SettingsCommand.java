@@ -8,6 +8,7 @@ import com.ua.yushchenko.bot.TelegramBot;
 import com.ua.yushchenko.service.DailyPredictionService;
 import com.ua.yushchenko.service.prediction.PredictionService;
 import com.ua.yushchenko.state.BotStateManager;
+import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -24,6 +25,9 @@ public class SettingsCommand extends BaseMessageCommand {
      * Formatter for displaying notification times
      */
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
+    private Long predictionTimeZone;
+
     private final BotStateManager stateManager;
 
     /**
@@ -36,9 +40,12 @@ public class SettingsCommand extends BaseMessageCommand {
      */
     public SettingsCommand(TelegramBot bot, long chatId,
                            PredictionService predictionService,
-                           DailyPredictionService dailyPredictionService, final BotStateManager stateManager) {
+                           DailyPredictionService dailyPredictionService,
+                           final BotStateManager stateManager,
+                           final Long predictionTimeZone) {
         super(bot, chatId, predictionService, dailyPredictionService);
         this.stateManager = stateManager;
+        this.predictionTimeZone = predictionTimeZone;
     }
 
     /**
@@ -50,14 +57,19 @@ public class SettingsCommand extends BaseMessageCommand {
      */
     @Override
     public void execute(Update update) throws TelegramApiException {
-        boolean notificationsEnabled = dailyPredictionService.isNotificationsEnabled(chatId);
-        StringBuilder message = new StringBuilder("⚙️ Налаштування\n\n");
-        message.append(notificationsEnabled ? "🔔 Сповіщення: Увімкнено" : "🔕 Сповіщення: Вимкнено").append("\n");
+        final boolean notificationsEnabled = dailyPredictionService.isNotificationsEnabled(chatId);
+        final StringBuilder message = new StringBuilder("⚙️ Налаштування\n\n");
+
+        message.append(notificationsEnabled
+                               ? "🔔 Сповіщення: Увімкнено"
+                               : "🔕 Сповіщення: Вимкнено")
+               .append("\n");
 
         Optional<LocalDateTime> notificationTime = dailyPredictionService.getNotificationTime(chatId);
 
         notificationTime.ifPresentOrElse(
-                time -> message.append("🕒 Час сповіщень: ").append(time.plusHours(2).format(TIME_FORMATTER)),
+                time -> message.append("🕒 Час сповіщень: ")
+                               .append(time.plusHours(predictionTimeZone).format(TIME_FORMATTER)),
                 () -> message.append("⚠️ Час сповіщень: Не встановлено"));
 
 

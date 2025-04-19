@@ -1,5 +1,6 @@
 package com.ua.yushchenko.command;
 
+import org.quartz.SchedulerException;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -17,7 +18,7 @@ public interface Command {
      * @param update the update containing message or callback query data
      * @throws TelegramApiException if there is an error executing the command
      */
-    void execute(Update update) throws TelegramApiException;
+    void execute(Update update) throws TelegramApiException, SchedulerException;
 
     /**
      * Gets the command name (e.g., "/start", "/help").

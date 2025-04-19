@@ -4,9 +4,11 @@ import java.time.LocalDateTime;
 
 import com.ua.yushchenko.bot.TelegramBot;
 import com.ua.yushchenko.service.DailyPredictionService;
-import com.ua.yushchenko.service.notification.NotificationService;
+import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.prediction.PredictionService;
 import com.ua.yushchenko.service.user.UserService;
+import org.quartz.SchedulerException;
+import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -18,28 +20,34 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  */
 public class StartCommand extends BaseMessageCommand {
 
-    private final NotificationService notificationService;
+    private final Long predictionTimeZone;
+
+    private final NotificationSchedulerService notificationSchedulerService;
     private final UserService userService;
 
     protected StartCommand(final TelegramBot bot,
                            final long chatId,
                            final PredictionService predictionService,
                            final DailyPredictionService dailyPredictionService,
-                           final NotificationService notificationService, final UserService userService) {
+                           final NotificationSchedulerService notificationSchedulerService,
+                           final UserService userService,
+                           final Long predictionTimeZone) {
         super(bot, chatId, predictionService, dailyPredictionService);
-        this.notificationService = notificationService;
+        this.notificationSchedulerService = notificationSchedulerService;
         this.userService = userService;
+        this.predictionTimeZone = predictionTimeZone;
     }
 
     @Override
-    public void execute(Update update) throws TelegramApiException {
+    public void execute(Update update) throws TelegramApiException, SchedulerException {
         LocalDateTime notificationTime = LocalDateTime.now()
                                                       .withHour(9)
                                                       .withMinute(0)
                                                       .withSecond(0)
                                                       .withNano(0);
 
-        userService.saveNotificationTime(chatId, notificationTime);
+        userService.saveNotificationTime(chatId, notificationTime.minusHours(predictionTimeZone));
+        notificationSchedulerService.scheduleDailyNotification(chatId, notificationTime.minusHours(predictionTimeZone));
 
         String welcomeMessage = """
                 👋 Вітаю! Я бот передбачень, який допоможе вам дізнатися, що чекає на вас у майбутньому.

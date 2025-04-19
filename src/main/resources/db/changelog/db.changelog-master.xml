@@ -10,4 +10,5 @@
     <include file="classpath:db/changelog/changes/003-add-timezone-to-users.xml"/>
     <include file="classpath:db/changelog/changes/007-add-last-notification-time.xml"/>
     <include file="classpath:db/changelog/changes/008-update-notification-time-types.xml"/>
-</databaseChangeLog> 
+    <include file="classpath:db/changelog/changes/009-add-quartz-tables.xml"/>
+</databaseChangeLog>

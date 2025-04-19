@@ -21,6 +21,10 @@ public interface UserService {
      */
     User findById(Long userId);
 
+    User findByChatId(Long chatId);
+
+    List<User> findAll();
+
     /**
      * Зберігає користувача.
      *

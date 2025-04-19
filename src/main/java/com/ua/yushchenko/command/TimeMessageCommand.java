@@ -2,8 +2,11 @@ package com.ua.yushchenko.command;
 
 import com.ua.yushchenko.bot.TelegramBot;
 import com.ua.yushchenko.service.DailyPredictionService;
+import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.prediction.PredictionService;
 import com.ua.yushchenko.state.BotStateManager;
+import org.quartz.SchedulerException;
+import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -20,16 +23,24 @@ import java.util.List;
 
 public class TimeMessageCommand extends BaseMessageCommand {
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
+    private final Long predictionTimeZone;
+
     private final BotStateManager stateManager;
     private final Message message;
+    private final NotificationSchedulerService notificationSchedulerService;
 
     public TimeMessageCommand(TelegramBot bot, Message message,
-                            PredictionService predictionService,
-                            DailyPredictionService dailyPredictionService,
-                            BotStateManager stateManager) {
+                              PredictionService predictionService,
+                              DailyPredictionService dailyPredictionService,
+                              BotStateManager stateManager,
+                              NotificationSchedulerService notificationSchedulerService,
+                              final Long predictionTimeZone) {
         super(bot, message.getChatId(), predictionService, dailyPredictionService);
         this.message = message;
         this.stateManager = stateManager;
+        this.notificationSchedulerService = notificationSchedulerService;
+        this.predictionTimeZone = predictionTimeZone;
     }
 
     @Override
@@ -41,7 +52,7 @@ public class TimeMessageCommand extends BaseMessageCommand {
 
         String timeStr = message.getText().trim();
         try {
-            LocalTime time = LocalTime.parse(timeStr, TIME_FORMATTER).minusHours(2);
+            LocalTime time = LocalTime.parse(timeStr, TIME_FORMATTER).minusHours(predictionTimeZone);
             LocalTime userLocalTime = LocalTime.parse(timeStr, TIME_FORMATTER);
 
             LocalDateTime notificationTime = LocalDateTime.now()
@@ -52,7 +63,9 @@ public class TimeMessageCommand extends BaseMessageCommand {
             
             dailyPredictionService.setNotificationTime(chatId, notificationTime);
             stateManager.clearState(chatId);
-            
+
+            notificationSchedulerService.updateScheduleDailyNotification(chatId, notificationTime);
+
             if (!dailyPredictionService.isNotificationsEnabled(chatId)) {
                 dailyPredictionService.enableNotifications(chatId);
             }
@@ -72,7 +85,7 @@ public class TimeMessageCommand extends BaseMessageCommand {
             
             String successMessage = String.format("✅ Час сповіщень успішно встановлено на %s", userLocalTime.format(TIME_FORMATTER));
             sendMessage(successMessage, keyboard);
-        } catch (DateTimeParseException e) {
+        } catch (DateTimeParseException | SchedulerException e) {
             String errorMessage = """
                     ❌ Невірний формат часу. Будь ласка, введіть час у форматі ГГ:ХХ (Час у Києві)
                     

@@ -9,7 +9,7 @@ import com.ua.yushchenko.model.Prediction;
 import com.ua.yushchenko.repository.UserRepository;
 import com.ua.yushchenko.service.DailyPredictionService;
 import com.ua.yushchenko.service.MessageSender;
-import com.ua.yushchenko.service.notification.NotificationService;
+import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.prediction.PredictionService;
 import com.ua.yushchenko.service.prediction.PredictionServiceImpl;
 import com.ua.yushchenko.service.telegram.TelegramApiExecutor;
@@ -23,6 +23,7 @@ import com.ua.yushchenko.state.BotStateManager;
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -94,39 +95,38 @@ public class BotConfiguration {
     /**
      * Creates CommandFactory bean for handling bot commands.
      *
-     * @param bot                    the main bot instance
-     * @param predictionService      service for generating predictions
-     * @param dailyPredictionService service for daily predictions
-     * @param notificationService    service for managing notifications
-     * @param stateManager           manager for bot states
+     * @param bot                          the main bot instance
+     * @param predictionService            service for generating predictions
+     * @param dailyPredictionService       service for daily predictions
+     * @param notificationSchedulerService service for managing notifications
+     * @param stateManager                 manager for bot states
      * @return configured CommandFactory instance
      */
     @Bean
     public CommandFactory commandFactory(@Lazy TelegramBot bot,
                                          PredictionService predictionService,
                                          DailyPredictionService dailyPredictionService,
-                                         NotificationService notificationService,
+                                         NotificationSchedulerService notificationSchedulerService,
                                          BotStateManager stateManager,
-                                         UserService userService) {
+                                         UserService userService,
+                                         @Value("${prediction.time.zone}") final Long predictionTimeZone) {
         return new CommandFactory(bot, predictionService, dailyPredictionService,
-                                  notificationService, stateManager, userService);
+                                  notificationSchedulerService, stateManager, userService, predictionTimeZone);
     }
 
     /**
      * Creates the main TelegramBot bean.
      *
-     * @param botSettings           bot configuration
-     * @param notificationService service for managing notifications
-     * @param telegramBotService  service for Telegram API interactions
-     * @param commandFactory      factory for creating command instances
+     * @param botSettings        bot configuration
+     * @param telegramBotService service for Telegram API interactions
+     * @param commandFactory     factory for creating command instances
      * @return configured TelegramBot instance
      */
     @Bean
     public TelegramBot telegramBot(BotConfig.BotSettings botSettings,
-                                   NotificationService notificationService,
                                    @Lazy TelegramBotService telegramBotService,
                                    @Lazy CommandFactory commandFactory) {
-        return new TelegramBot(botSettings, notificationService, telegramBotService, commandFactory);
+        return new TelegramBot(botSettings, telegramBotService, commandFactory);
     }
 
     /**

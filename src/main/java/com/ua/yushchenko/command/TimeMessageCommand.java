@@ -52,7 +52,7 @@ public class TimeMessageCommand extends BaseMessageCommand {
 
         String timeStr = message.getText().trim();
         try {
-            LocalTime time = LocalTime.parse(timeStr, TIME_FORMATTER).minusHours(predictionTimeZone);
+            LocalTime time = LocalTime.parse(timeStr, TIME_FORMATTER).minusHours(3);
             LocalTime userLocalTime = LocalTime.parse(timeStr, TIME_FORMATTER);
 
             LocalDateTime notificationTime = LocalDateTime.now()

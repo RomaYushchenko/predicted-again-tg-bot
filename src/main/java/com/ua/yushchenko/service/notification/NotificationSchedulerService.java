@@ -40,7 +40,7 @@ public class NotificationSchedulerService {
         userService.findAll()
                    .forEach(user -> {
                        try {
-                           scheduleDailyNotification(user.getChatId(), user.getNotificationTime().plusHours(2));
+                           scheduleDailyNotification(user.getChatId(), user.getNotificationTime().plusHours(1));
                        } catch (final SchedulerException e) {
                            log.error("Unexpected Exception: {}", e.getMessage(), e);
                        }

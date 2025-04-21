@@ -78,19 +78,7 @@ public class NotificationSchedulerService {
             return;
         }
 
-        final JobDetail jobDetail = JobBuilder.newJob(NotificationJob.class)
-                                              .withIdentity(jobKey)
-                                              .usingJobData("chatId", chatId)
-                                              .build();
-
-        final Trigger trigger = TriggerBuilder.newTrigger()
-                                              .withIdentity("trigger_" + jobIdentity, "notification_group")
-                                              .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(kievTime.getHour(),
-                                                                                                     kievTime.getMinute()))
-                                              .forJob(jobDetail)
-                                              .build();
-
-        scheduler.scheduleJob(jobDetail, trigger);
+        planningNotificationJob(chatId, jobKey, jobIdentity, kievTime);
 
         log.info("scheduleDailyNotification.X: Job [{}] was created for user [{}] with data [{}]", jobKey, chatId,
                  kievTime);
@@ -106,22 +94,44 @@ public class NotificationSchedulerService {
             SchedulerException {
         final String jobIdentity = "user_notification_" + chatId;
         final JobKey jobKey = JobKey.jobKey(jobIdentity, "notification_group");
+        final LocalDateTime kievTime = newTime.minusHours(predictionTimeZone);
 
         log.info(
                 "updateScheduleDailyNotification.E: Start to updating Notification daily job for user [{}] with data " +
                         "[{}]",
-                chatId, newTime.minusHours(predictionTimeZone));
+                chatId, kievTime);
 
         if (!scheduler.checkExists(jobKey)) {
             log.info("updateScheduleDailyNotification.X: Notification group {} is not already exists", jobIdentity);
-            scheduleDailyNotification(chatId, newTime);
+            planningNotificationJob(chatId, jobKey, jobIdentity, kievTime);
             return;
         }
 
         scheduler.deleteJob(jobKey);
-        scheduleDailyNotification(chatId, newTime);
+        planningNotificationJob(chatId, jobKey, jobIdentity, kievTime);
 
         log.info("updateScheduleDailyNotification.X: Job [{}] was updated for user [{}] with data [{}]",
-                 jobKey, chatId, newTime.minusHours(predictionTimeZone));
+                 jobKey, chatId, kievTime);
+    }
+
+    private void planningNotificationJob(final Long chatId,
+                                         final JobKey jobKey,
+                                         final String jobIdentity,
+                                         final LocalDateTime kievTime)
+            throws SchedulerException {
+
+        final JobDetail jobDetail = JobBuilder.newJob(NotificationJob.class)
+                                              .withIdentity(jobKey)
+                                              .usingJobData("chatId", chatId)
+                                              .build();
+
+        final Trigger trigger = TriggerBuilder.newTrigger()
+                                              .withIdentity("trigger_" + jobIdentity, "notification_group")
+                                              .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(kievTime.getHour(),
+                                                                                                     kievTime.getMinute()))
+                                              .forJob(jobDetail)
+                                              .build();
+
+        scheduler.scheduleJob(jobDetail, trigger);
     }
 }

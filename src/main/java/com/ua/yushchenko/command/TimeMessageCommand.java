@@ -7,9 +7,9 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ua.yushchenko.service.DailyPredictionService;
 import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.telegram.MessageSender;
+import com.ua.yushchenko.service.user.UserService;
 import com.ua.yushchenko.state.BotStateManager;
 import org.quartz.SchedulerException;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -25,18 +25,18 @@ public class TimeMessageCommand extends AbstractMessageCommand {
     private final BotStateManager stateManager;
     private final Message message;
     private final NotificationSchedulerService notificationSchedulerService;
-    private final DailyPredictionService dailyPredictionService;
+    private final UserService userService;
 
     public TimeMessageCommand(final MessageSender messageSender,
                               final Message message,
-                              final DailyPredictionService dailyPredictionService,
+                              final UserService userService,
                               final BotStateManager stateManager,
                               final NotificationSchedulerService notificationSchedulerService) {
         super(messageSender, message.getChatId());
         this.message = message;
         this.stateManager = stateManager;
         this.notificationSchedulerService = notificationSchedulerService;
-        this.dailyPredictionService = dailyPredictionService;
+        this.userService = userService;
     }
 
     @Override
@@ -56,13 +56,13 @@ public class TimeMessageCommand extends AbstractMessageCommand {
                                                                 .withSecond(0)
                                                                 .withNano(0);
 
-            dailyPredictionService.setNotificationTime(chatId, notificationTime);
+            userService.setNotificationTime(chatId, notificationTime);
             stateManager.clearState(chatId);
 
             notificationSchedulerService.updateScheduleDailyNotification(chatId, notificationTime);
 
-            if (!dailyPredictionService.isNotificationsEnabled(chatId)) {
-                dailyPredictionService.enableNotifications(chatId);
+            if (!userService.isNotificationsEnabled(chatId)) {
+                userService.enableNotifications(chatId);
             }
 
             // Створюємо клавіатуру для повернення до налаштувань

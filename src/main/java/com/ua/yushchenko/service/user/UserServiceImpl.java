@@ -100,19 +100,22 @@ public class UserServiceImpl implements UserService {
                              .map(User::getNotificationTime);
     }
 
+    /**
+     * {@inheritDoc}
+     * Toggles the notification state by getting the current state and saving its opposite.
+     */
+    @Override
+    public void toggleNotifications(long chatId) {
+        boolean currentState = isNotificationsEnabled(chatId);
+        saveNotificationState(chatId, !currentState);
+    }
+
     @Override
     public void saveNotificationState(long chatId, boolean enabled) {
         User user = userRepository.findByChatId(chatId)
                                   .orElseGet(() -> createUser(chatId));
         user.setNotificationsEnabled(enabled);
         userRepository.save(user);
-    }
-
-    @Override
-    public boolean getNotificationState(long chatId) {
-        return userRepository.findByChatId(chatId)
-                             .map(User::isNotificationsEnabled)
-                             .orElse(false);
     }
 
     @Override
@@ -131,24 +134,32 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Set<Long> getAllChatsWithNotifications() {
-        return userRepository.findAllByNotificationsEnabledTrue().stream()
-                             .map(User::getChatId)
-                             .collect(Collectors.toSet());
-    }
-
-    @Override
     public boolean isNotificationsEnabled(long chatId) {
         return userRepository.findByChatId(chatId)
                              .map(User::isNotificationsEnabled)
                              .orElse(false);
     }
 
+    /**
+     * {@inheritDoc}
+     * Delegates to UserService to set the notification time.
+     */
     @Override
-    public Set<Long> findChatsWithNotifications(LocalDateTime time) {
-        return userRepository.findAllByNotificationsEnabledTrueAndNotificationTime(time).stream()
-                             .map(User::getChatId)
-                             .collect(Collectors.toSet());
+    public void setNotificationTime(long chatId, LocalDateTime time) {
+        if (time == null) {
+            throw new IllegalArgumentException("Notification time cannot be null");
+        }
+
+        saveNotificationTime(chatId, time);
+    }
+
+    /**
+     * {@inheritDoc}
+     * Delegates to UserService to enable notifications.
+     */
+    @Override
+    public void enableNotifications(long chatId) {
+        saveNotificationState(chatId, true);
     }
 
     private User createUser(long chatId) {

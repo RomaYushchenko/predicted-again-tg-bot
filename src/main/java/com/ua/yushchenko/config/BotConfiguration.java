@@ -7,7 +7,6 @@ import com.ua.yushchenko.command.CommandFactory;
 import com.ua.yushchenko.common.SplitMix64RandomGenerator;
 import com.ua.yushchenko.model.Prediction;
 import com.ua.yushchenko.repository.UserRepository;
-import com.ua.yushchenko.service.DailyPredictionService;
 import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.prediction.PredictionService;
 import com.ua.yushchenko.service.prediction.PredictionServiceImpl;
@@ -94,7 +93,6 @@ public class BotConfiguration {
      *
      * @param messageSender                the main bot instance
      * @param predictionService            service for generating predictions
-     * @param dailyPredictionService       service for daily predictions
      * @param notificationSchedulerService service for managing notifications
      * @param stateManager                 manager for bot states
      * @return configured CommandFactory instance
@@ -102,12 +100,11 @@ public class BotConfiguration {
     @Bean
     public CommandFactory commandFactory(MessageSender messageSender,
                                          PredictionService predictionService,
-                                         DailyPredictionService dailyPredictionService,
                                          NotificationSchedulerService notificationSchedulerService,
                                          BotStateManager stateManager,
                                          UserService userService) {
-        return new CommandFactory(messageSender, predictionService, dailyPredictionService,
-                                  notificationSchedulerService, stateManager, userService);
+        return new CommandFactory(messageSender, predictionService, notificationSchedulerService, stateManager,
+                                  userService);
     }
 
     /**

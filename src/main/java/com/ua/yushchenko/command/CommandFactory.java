@@ -13,7 +13,6 @@ import static com.ua.yushchenko.command.CommandConstants.COMMAND_SETTINGS;
 import static com.ua.yushchenko.command.CommandConstants.COMMAND_SETTINGS_BUTTON;
 import static com.ua.yushchenko.command.CommandConstants.COMMAND_START;
 
-import com.ua.yushchenko.service.DailyPredictionService;
 import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.prediction.PredictionService;
 import com.ua.yushchenko.service.telegram.MessageSender;
@@ -37,7 +36,6 @@ public class CommandFactory {
 
     private final MessageSender messageSender;
     private final PredictionService predictionService;
-    private final DailyPredictionService dailyPredictionService;
     private final NotificationSchedulerService notificationSchedulerService;
     private final BotStateManager stateManager;
     private final UserService userService;
@@ -49,19 +47,16 @@ public class CommandFactory {
      *
      * @param messageSender                the main bot instance
      * @param predictionService            service for generating predictions
-     * @param dailyPredictionService       service for handling daily predictions
      * @param notificationSchedulerService service for managing notifications
      * @param stateManager                 manager for bot states
      */
     public CommandFactory(final MessageSender messageSender,
                           final PredictionService predictionService,
-                          final DailyPredictionService dailyPredictionService,
                           final NotificationSchedulerService notificationSchedulerService,
                           final BotStateManager stateManager,
                           final UserService userService) {
         this.messageSender = messageSender;
         this.predictionService = predictionService;
-        this.dailyPredictionService = dailyPredictionService;
         this.notificationSchedulerService = notificationSchedulerService;
         this.stateManager = stateManager;
         this.userService = userService;
@@ -86,7 +81,7 @@ public class CommandFactory {
 
         // Check if user is awaiting time input
         if (stateManager.isAwaitingTime(chatId)) {
-            return new TimeMessageCommand(messageSender, message, dailyPredictionService,
+            return new TimeMessageCommand(messageSender, message, userService,
                                           stateManager, notificationSchedulerService);
         }
 
@@ -98,13 +93,13 @@ public class CommandFactory {
             return new DailyPredictionCommand(messageSender, chatId, predictionService);
         }
         if (text.equals(COMMAND_SETTINGS_BUTTON)) {
-            return new SettingsCommand(messageSender, chatId, dailyPredictionService, stateManager);
+            return new SettingsCommand(messageSender, chatId, userService, stateManager);
         }
 
         // Потім перевіряємо звичайні команди
         return switch (text) {
             case COMMAND_START -> new StartCommand(messageSender, chatId, notificationSchedulerService, userService);
-            case COMMAND_SETTINGS -> new SettingsCommand(messageSender, chatId, dailyPredictionService, stateManager);
+            case COMMAND_SETTINGS -> new SettingsCommand(messageSender, chatId, userService, stateManager);
             case COMMAND_QUICK -> new QuickPredictionCommand(messageSender, chatId, predictionService);
             case COMMAND_DAILY -> new DailyPredictionCommand(messageSender, chatId, predictionService);
             default -> new UnknownCommand(messageSender, chatId);
@@ -129,9 +124,8 @@ public class CommandFactory {
         int messageId = callbackQuery.getMessage().getMessageId();
 
         return switch (data) {
-            case CALLBACK_SETTINGS -> new SettingsCommand(messageSender, chatId, dailyPredictionService, stateManager);
-            case CALLBACK_TOGGLE_NOTIFICATIONS ->
-                    new ToggleNotificationsCommand(messageSender, chatId, dailyPredictionService);
+            case CALLBACK_SETTINGS -> new SettingsCommand(messageSender, chatId, userService, stateManager);
+            case CALLBACK_TOGGLE_NOTIFICATIONS -> new ToggleNotificationsCommand(messageSender, chatId, userService);
             case CALLBACK_CHANGE_TIME -> new ChangeNotificationTimeCommand(messageSender, chatId, stateManager);
             case CALLBACK_ANOTHER_PREDICTION ->
                     new AnotherPredictionCommand(messageSender, chatId, messageId, predictionService);

@@ -41,6 +41,23 @@ public interface UserService {
      */
     Optional<LocalDateTime> getNotificationTime(long chatId);
 
+    void toggleNotifications(long chatId);
+
+    /**
+     * Sets the notification time for a user.
+     *
+     * @param chatId ID of the user's chat
+     * @param time   time at which notifications should be sent
+     */
+    void setNotificationTime(long chatId, LocalDateTime time);
+
+    /**
+     * Enables notifications for a user.
+     *
+     * @param chatId ID of the user's chat
+     */
+    void enableNotifications(long chatId);
+
     /**
      * Зберігає стан сповіщень для користувача.
      *
@@ -48,14 +65,6 @@ public interface UserService {
      * @param enabled стан сповіщень
      */
     void saveNotificationState(long chatId, boolean enabled);
-
-    /**
-     * Отримує стан сповіщень для користувача.
-     *
-     * @param chatId ID чату користувача
-     * @return true, якщо сповіщення увімкнені
-     */
-    boolean getNotificationState(long chatId);
 
     /**
      * Зберігає останнє передбачення для користувача.
@@ -73,28 +82,7 @@ public interface UserService {
      */
     String getLastPrediction(long chatId);
 
-    /**
-     * Отримує список всіх чатів, де увімкнені сповіщення.
-     *
-     * @return множина ID чатів
-     */
-    Set<Long> getAllChatsWithNotifications();
-
-    /**
-     * Перевіряє, чи увімкнені сповіщення для користувача.
-     *
-     * @param chatId ID чату користувача
-     * @return true, якщо сповіщення увімкнені
-     */
     boolean isNotificationsEnabled(long chatId);
-
-    /**
-     * Знаходить всі чати з увімкненими сповіщеннями на вказаний час.
-     *
-     * @param time час сповіщень
-     * @return множина ID чатів
-     */
-    Set<Long> findChatsWithNotifications(LocalDateTime time);
 
     /**
      * Зберігає часовий пояс для користувача.

@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-import com.ua.yushchenko.service.DailyPredictionService;
 import com.ua.yushchenko.service.telegram.MessageSender;
+import com.ua.yushchenko.service.user.UserService;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -13,21 +13,21 @@ public class ToggleNotificationsCommand extends AbstractMessageCommand {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
-    private final DailyPredictionService dailyPredictionService;
+    private final UserService userService;
 
     public ToggleNotificationsCommand(final MessageSender messageSender,
                                       final long chatId,
-                                      final DailyPredictionService dailyPredictionService) {
+                                      final UserService userService) {
         super(messageSender, chatId);
 
-        this.dailyPredictionService = dailyPredictionService;
+        this.userService = userService;
     }
 
     @Override
     public void execute(Update update) throws TelegramApiException {
-        dailyPredictionService.toggleNotifications(chatId);
-        boolean wasEnabled = dailyPredictionService.isNotificationsEnabled(chatId);
-        Optional<LocalDateTime> notificationTime = dailyPredictionService.getNotificationTime(chatId);
+        userService.toggleNotifications(chatId);
+        boolean wasEnabled = userService.isNotificationsEnabled(chatId);
+        Optional<LocalDateTime> notificationTime = userService.getNotificationTime(chatId);
 
         final StringBuilder message = new StringBuilder("⚙️ Налаштування\n\n");
         message.append(wasEnabled

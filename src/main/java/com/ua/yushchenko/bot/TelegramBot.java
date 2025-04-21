@@ -1,13 +1,12 @@
 package com.ua.yushchenko.bot;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.ua.yushchenko.command.Command;
 import com.ua.yushchenko.command.CommandFactory;
 import com.ua.yushchenko.config.BotConfig.BotSettings;
-import com.ua.yushchenko.service.telegram.TelegramBotService;
+import com.ua.yushchenko.service.telegram.MessageSender;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
@@ -43,21 +41,21 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Value("${bot.token}")
     private String botToken;
 
-    private final TelegramBotService telegramBotService;
+    private final MessageSender messageSender;
     private final CommandFactory commandFactory;
 
     /**
      * Creates a new TelegramBot instance with required dependencies.
      *
-     * @param botSettings        bot configuration containing token and username
-     * @param telegramBotService service for Telegram API interactions
-     * @param commandFactory     factory for creating command instances
+     * @param botSettings    bot configuration containing token and username
+     * @param messageSender  service for Telegram API interactions
+     * @param commandFactory factory for creating command instances
      */
-    public TelegramBot(BotSettings botSettings,
-                       TelegramBotService telegramBotService,
-                       CommandFactory commandFactory) {
+    public TelegramBot(final BotSettings botSettings,
+                       final MessageSender messageSender,
+                       final CommandFactory commandFactory) {
         super(botSettings.getToken());
-        this.telegramBotService = telegramBotService;
+        this.messageSender = messageSender;
         this.commandFactory = commandFactory;
         log.info("TelegramBot initialized with name: {}", botSettings.getName());
     }
@@ -76,7 +74,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         listOfCommands.add(new BotCommand("/settings", "Налаштування сповіщень"));
 
         try {
-            execute(new SetMyCommands(listOfCommands, new BotCommandScopeDefault(), null));
+            messageSender.sendMessage(new SetMyCommands(listOfCommands, new BotCommandScopeDefault(), null));
             log.info("Bot commands initialized successfully");
         } catch (TelegramApiException e) {
             log.error("Error setting bot's command list: {}", e.getMessage());
@@ -97,7 +95,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     handleTextMessage(update);
                 } else {
                     long chatId = update.getMessage().getChatId();
-                    telegramBotService.sendMessage(chatId, "Вибачте, я розумію тільки текстові повідомлення.");
+                    messageSender.sendMessage(chatId, "Вибачте, я розумію тільки текстові повідомлення.");
                 }
             } else if (update.hasCallbackQuery()) {
                 handleCallbackQuery(update);
@@ -112,7 +110,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                                         ? update.getCallbackQuery().getMessage().getChatId()
                                         : 0;
                 if (chatId != 0) {
-                    telegramBotService.sendMessage(chatId, "Вибачте, сталася помилка. Спробуйте ще раз.");
+                    messageSender.sendMessage(chatId, "Вибачте, сталася помилка. Спробуйте ще раз.");
                 }
             } catch (TelegramApiException ex) {
                 log.error("Error sending error message: {}", ex.getMessage(), ex);
@@ -138,8 +136,8 @@ public class TelegramBot extends TelegramLongPollingBot {
         } catch (Exception e) {
             log.error("Error handling text message: {}", e.getMessage(), e);
             try {
-                telegramBotService.sendMessage(update.getMessage().getChatId(),
-                                               "Вибачте, сталася помилка при обробці повідомлення. Спробуйте ще раз.");
+                messageSender.sendMessage(update.getMessage().getChatId(),
+                                          "Вибачте, сталася помилка при обробці повідомлення. Спробуйте ще раз.");
             } catch (TelegramApiException ex) {
                 log.error("Error sending error message: {}", ex.getMessage(), ex);
             }
@@ -164,34 +162,11 @@ public class TelegramBot extends TelegramLongPollingBot {
         } catch (Exception e) {
             log.error("Error handling callback query: {}", e.getMessage(), e);
             try {
-                telegramBotService.sendMessage(update.getCallbackQuery().getMessage().getChatId(),
-                                               "Вибачте, сталася помилка при обробці запиту. Спробуйте ще раз.");
+                messageSender.sendMessage(update.getCallbackQuery().getMessage().getChatId(),
+                                          "Вибачте, сталася помилка при обробці запиту. Спробуйте ще раз.");
             } catch (TelegramApiException ex) {
                 log.error("Error sending error message: {}", ex.getMessage(), ex);
             }
         }
     }
-
-    /**
-     * Executes a Telegram API method.
-     * Overrides the parent method to add error handling.
-     *
-     * @param method the method to execute
-     * @return result of the method execution
-     * @throws TelegramApiException if there is an error executing the method
-     */
-    @Override
-    public <T extends Serializable, Method extends BotApiMethod<T>> T execute(Method method) throws
-            TelegramApiException {
-        try {
-            return super.execute(method);
-        } catch (TelegramApiException e) {
-            if (e.getMessage().contains("message is not modified")) {
-                log.debug("Message is not modified");
-                throw e;
-            }
-            log.error("Error executing method: {}", e.getMessage());
-            throw e;
-        }
-    }
-} 
+}

@@ -1,32 +1,27 @@
 package com.ua.yushchenko.command;
 
-import com.ua.yushchenko.bot.TelegramBot;
-import com.ua.yushchenko.service.DailyPredictionService;
 import com.ua.yushchenko.service.prediction.PredictionService;
+import com.ua.yushchenko.service.telegram.MessageSender;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-public class AnotherPredictionCommand extends BaseCallbackCommand {
+public class AnotherPredictionCommand extends AbstractCallbackCommand {
 
-    public AnotherPredictionCommand(TelegramBot bot, long chatId, int messageId,
-                                    PredictionService predictionService,
-                                    DailyPredictionService dailyPredictionService) {
-        super(bot, chatId, messageId, predictionService, dailyPredictionService);
+    private final PredictionService predictionService;
+
+    public AnotherPredictionCommand(MessageSender messageSender,
+                                    long chatId,
+                                    int messageId,
+                                    PredictionService predictionService) {
+        super(messageSender, chatId, messageId);
+
+        this.predictionService = predictionService;
     }
 
     @Override
     public void execute(Update update) throws TelegramApiException {
         String prediction = predictionService.generateQuickPrediction(chatId);
-        editMessage(prediction, createPredictionInlineKeyboard());
-    }
-
-    @Override
-    protected void handleMessageNotModified() {
-        try {
-            execute(null); // Повторна спроба з новим передбаченням
-        } catch (TelegramApiException e) {
-            handleError(e);
-        }
+        messageSender.editMessage(chatId, messageId, prediction, createPredictionInlineKeyboard());
     }
 
     @Override

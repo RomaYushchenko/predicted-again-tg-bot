@@ -4,9 +4,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-import com.ua.yushchenko.bot.TelegramBot;
 import com.ua.yushchenko.service.DailyPredictionService;
-import com.ua.yushchenko.service.prediction.PredictionService;
+import com.ua.yushchenko.service.telegram.MessageSender;
 import com.ua.yushchenko.state.BotStateManager;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -18,28 +17,29 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  * @author AI
  * @version 0.1-beta
  */
-public class SettingsCommand extends BaseMessageCommand {
+public class SettingsCommand extends AbstractMessageCommand {
 
     /**
      * Formatter for displaying notification times
      */
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
+    private final DailyPredictionService dailyPredictionService;
     private final BotStateManager stateManager;
 
     /**
      * Creates a new settings command.
      *
-     * @param bot                    the bot instance
+     * @param messageSender          the bot instance
      * @param chatId                 ID of the chat where the command was invoked
-     * @param predictionService      service for generating predictions
      * @param dailyPredictionService service for handling daily predictions
      */
-    public SettingsCommand(TelegramBot bot, long chatId,
-                           PredictionService predictionService,
-                           DailyPredictionService dailyPredictionService,
+    public SettingsCommand(final MessageSender messageSender,
+                           final long chatId,
+                           final DailyPredictionService dailyPredictionService,
                            final BotStateManager stateManager) {
-        super(bot, chatId, predictionService, dailyPredictionService);
+        super(messageSender, chatId);
+        this.dailyPredictionService = dailyPredictionService;
         this.stateManager = stateManager;
     }
 
@@ -68,11 +68,11 @@ public class SettingsCommand extends BaseMessageCommand {
 
 
         if (update.hasMessage()) {
-            sendMessage(message.toString(), createSettingsInlineKeyboard(notificationsEnabled));
+            messageSender.sendMessage(chatId, message.toString(), createSettingsInlineKeyboard(notificationsEnabled));
         } else {
             stateManager.clearState(chatId);
-            editMessage(update.getCallbackQuery().getMessage().getMessageId(),
-                        message.toString(), createSettingsInlineKeyboard(notificationsEnabled));
+            messageSender.editMessage(chatId, update.getCallbackQuery().getMessage().getMessageId(),
+                                      message.toString(), createSettingsInlineKeyboard(notificationsEnabled));
         }
     }
 

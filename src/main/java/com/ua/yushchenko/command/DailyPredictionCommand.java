@@ -1,22 +1,26 @@
 package com.ua.yushchenko.command;
 
-import com.ua.yushchenko.bot.TelegramBot;
-import com.ua.yushchenko.service.DailyPredictionService;
 import com.ua.yushchenko.service.prediction.PredictionService;
+import com.ua.yushchenko.service.telegram.MessageSender;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-public class DailyPredictionCommand extends BaseMessageCommand {
-    public DailyPredictionCommand(TelegramBot bot, long chatId,
-                                PredictionService predictionService,
-                                DailyPredictionService dailyPredictionService) {
-        super(bot, chatId, predictionService, dailyPredictionService);
+public class DailyPredictionCommand extends AbstractMessageCommand {
+
+    private final PredictionService predictionService;
+
+    public DailyPredictionCommand(final MessageSender messageSender,
+                                  final long chatId,
+                                  final PredictionService predictionService) {
+        super(messageSender, chatId);
+
+        this.predictionService = predictionService;
     }
 
     @Override
     public void execute(Update update) throws TelegramApiException {
         String prediction = predictionService.generateDailyPrediction(chatId);
-        sendMessage(prediction, createDailyPredictionInlineKeyboard());
+        messageSender.sendMessage(chatId, prediction, createDailyPredictionInlineKeyboard());
     }
 
     @Override

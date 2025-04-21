@@ -4,20 +4,23 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-import com.ua.yushchenko.bot.TelegramBot;
 import com.ua.yushchenko.service.DailyPredictionService;
-import com.ua.yushchenko.service.prediction.PredictionService;
+import com.ua.yushchenko.service.telegram.MessageSender;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-public class ToggleNotificationsCommand extends BaseMessageCommand {
+public class ToggleNotificationsCommand extends AbstractMessageCommand {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
-    public ToggleNotificationsCommand(TelegramBot bot, long chatId,
-                                      PredictionService predictionService,
-                                      DailyPredictionService dailyPredictionService) {
-        super(bot, chatId, predictionService, dailyPredictionService);
+    private final DailyPredictionService dailyPredictionService;
+
+    public ToggleNotificationsCommand(final MessageSender messageSender,
+                                      final long chatId,
+                                      final DailyPredictionService dailyPredictionService) {
+        super(messageSender, chatId);
+
+        this.dailyPredictionService = dailyPredictionService;
     }
 
     @Override
@@ -34,8 +37,8 @@ public class ToggleNotificationsCommand extends BaseMessageCommand {
                .append(notificationTime.map(time -> "🕒 Час сповіщень: " + time.format(TIME_FORMATTER))
                                        .orElse("⚠️ Час сповіщень: Не встановлено"));
 
-        editMessage(update.getCallbackQuery().getMessage().getMessageId(), message.toString(),
-                    createSettingsInlineKeyboard(wasEnabled));
+        messageSender.editMessage(chatId, update.getCallbackQuery().getMessage().getMessageId(),
+                                  message.toString(), createSettingsInlineKeyboard(wasEnabled));
     }
 
     @Override

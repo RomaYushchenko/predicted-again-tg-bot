@@ -7,10 +7,9 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ua.yushchenko.bot.TelegramBot;
 import com.ua.yushchenko.service.DailyPredictionService;
 import com.ua.yushchenko.service.notification.NotificationSchedulerService;
-import com.ua.yushchenko.service.prediction.PredictionService;
+import com.ua.yushchenko.service.telegram.MessageSender;
 import com.ua.yushchenko.state.BotStateManager;
 import org.quartz.SchedulerException;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -19,23 +18,25 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-public class TimeMessageCommand extends BaseMessageCommand {
+public class TimeMessageCommand extends AbstractMessageCommand {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     private final BotStateManager stateManager;
     private final Message message;
     private final NotificationSchedulerService notificationSchedulerService;
+    private final DailyPredictionService dailyPredictionService;
 
-    public TimeMessageCommand(TelegramBot bot, Message message,
-                              PredictionService predictionService,
-                              DailyPredictionService dailyPredictionService,
-                              BotStateManager stateManager,
-                              NotificationSchedulerService notificationSchedulerService) {
-        super(bot, message.getChatId(), predictionService, dailyPredictionService);
+    public TimeMessageCommand(final MessageSender messageSender,
+                              final Message message,
+                              final DailyPredictionService dailyPredictionService,
+                              final BotStateManager stateManager,
+                              final NotificationSchedulerService notificationSchedulerService) {
+        super(messageSender, message.getChatId());
         this.message = message;
         this.stateManager = stateManager;
         this.notificationSchedulerService = notificationSchedulerService;
+        this.dailyPredictionService = dailyPredictionService;
     }
 
     @Override
@@ -78,7 +79,7 @@ public class TimeMessageCommand extends BaseMessageCommand {
             keyboard.setKeyboard(buttons);
 
             String successMessage = String.format("✅ Час сповіщень успішно встановлено на %s", time);
-            sendMessage(successMessage, keyboard);
+            messageSender.sendMessage(chatId, successMessage, keyboard);
         } catch (DateTimeParseException | SchedulerException e) {
             String errorMessage = """
                     ❌ Невірний формат часу. Будь ласка, введіть час у форматі ГГ:ХХ (Час у Києві)
@@ -100,7 +101,7 @@ public class TimeMessageCommand extends BaseMessageCommand {
             buttons.add(row);
             keyboard.setKeyboard(buttons);
 
-            sendMessage(errorMessage, keyboard);
+            messageSender.sendMessage(chatId, errorMessage, keyboard);
         }
     }
 

@@ -1,7 +1,5 @@
 package com.ua.yushchenko.service;
 
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
@@ -14,6 +12,7 @@ import java.util.Set;
  * @version 0.1-beta
  */
 public interface DailyPredictionService {
+
     /**
      * Generates a random daily prediction for a specific user.
      *
@@ -21,14 +20,6 @@ public interface DailyPredictionService {
      * @return generated prediction text
      */
     String getRandomDailyPrediction(long chatId);
-
-    /**
-     * Sends a daily prediction to a user.
-     *
-     * @param chatId ID of the user's chat
-     * @throws TelegramApiException if there is an error sending the message
-     */
-    void sendDailyPrediction(long chatId) throws TelegramApiException;
 
     /**
      * Toggles the notification state for a user.
@@ -58,7 +49,7 @@ public interface DailyPredictionService {
      * Sets the notification time for a user.
      *
      * @param chatId ID of the user's chat
-     * @param time time at which notifications should be sent
+     * @param time   time at which notifications should be sent
      */
     void setNotificationTime(long chatId, LocalDateTime time);
 

@@ -1,14 +1,13 @@
 package com.ua.yushchenko.service;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
+
 import com.ua.yushchenko.service.prediction.PredictionService;
 import com.ua.yushchenko.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * Implementation of DailyPredictionService interface.
@@ -21,14 +20,16 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class DailyPredictionServiceImpl implements DailyPredictionService {
-    /** Service for generating predictions */
-    private final PredictionService predictionService;
-    
-    /** Service for managing user data */
-    private final UserService userService;
 
-    /** Service for sending messages */
-    private final MessageSender messageSender;
+    /**
+     * Service for generating predictions
+     */
+    private final PredictionService predictionService;
+
+    /**
+     * Service for managing user data
+     */
+    private final UserService userService;
 
     /**
      * {@inheritDoc}
@@ -143,12 +144,5 @@ public class DailyPredictionServiceImpl implements DailyPredictionService {
     @Override
     public Set<Long> getAllChatsWithNotifications() {
         return userService.getAllChatsWithNotifications();
-    }
-
-    @Override
-    public void sendDailyPrediction(long chatId) throws TelegramApiException {
-        String prediction = predictionService.generateDailyPrediction(chatId);
-        userService.saveLastPrediction(chatId, prediction);
-        messageSender.sendMessage(chatId, prediction);
     }
 } 

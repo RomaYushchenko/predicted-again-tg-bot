@@ -3,8 +3,8 @@ package com.ua.yushchenko.jobs;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import com.ua.yushchenko.service.MessageSender;
 import com.ua.yushchenko.service.prediction.PredictionService;
+import com.ua.yushchenko.service.telegram.MessageSender;
 import com.ua.yushchenko.service.user.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -62,7 +62,8 @@ public class NotificationJob implements Job {
 
                 log.error("Failed to send daily prediction to user {}: {}", chatId, e.getMessage());
             } catch (final Exception e) {
-                log.error("Unexpected exception: Failed to send daily prediction to user {}: {}", chatId, e.getMessage());
+                log.error("Unexpected exception: Failed to send daily prediction to user {}: {}", chatId,
+                          e.getMessage());
             }
         }
 

@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
@@ -125,18 +127,24 @@ public class TelegramBot extends TelegramLongPollingBot {
      * @param update the message to handle
      */
     private void handleTextMessage(Update update) {
-        if (update.getMessage() == null || update.getMessage().getText() == null) {
+        final Message message = update.getMessage();
+
+        if (message == null || message.getText() == null) {
             log.error("Received null message or text in handleTextMessage");
             return;
         }
 
         try {
-            Command command = commandFactory.createCommand(update.getMessage());
+            log.info("User [{}] start using command: {}", message.getChatId(), message.getText());
+
+            Command command = commandFactory.createCommand(message);
             command.execute(update);
+
+            log.info("User [{}] finished using command: {}", message.getChatId(), message.getText());
         } catch (Exception e) {
             log.error("Error handling text message: {}", e.getMessage(), e);
             try {
-                messageSender.sendMessage(update.getMessage().getChatId(),
+                messageSender.sendMessage(message.getChatId(),
                                           "Вибачте, сталася помилка при обробці повідомлення. Спробуйте ще раз.");
             } catch (TelegramApiException ex) {
                 log.error("Error sending error message: {}", ex.getMessage(), ex);
@@ -151,18 +159,26 @@ public class TelegramBot extends TelegramLongPollingBot {
      * @param update the callback query to handle
      */
     private void handleCallbackQuery(Update update) {
-        if (update.getCallbackQuery() == null || update.getCallbackQuery().getMessage() == null) {
+        final CallbackQuery callbackQuery = update.getCallbackQuery();
+
+        if (callbackQuery == null || callbackQuery.getMessage() == null) {
             log.error("Received null callback query or message in handleCallbackQuery");
             return;
         }
 
         try {
-            Command command = commandFactory.createCommand(update.getCallbackQuery());
+            log.info("User [{}] start using call back command: {}",
+                     callbackQuery.getMessage().getChatId(), callbackQuery.getData());
+
+            Command command = commandFactory.createCommand(callbackQuery);
             command.execute(update);
+
+            log.info("User [{}] finished using call back command: {}",
+                     callbackQuery.getMessage().getChatId(), callbackQuery.getData());
         } catch (Exception e) {
             log.error("Error handling callback query: {}", e.getMessage(), e);
             try {
-                messageSender.sendMessage(update.getCallbackQuery().getMessage().getChatId(),
+                messageSender.sendMessage(callbackQuery.getMessage().getChatId(),
                                           "Вибачте, сталася помилка при обробці запиту. Спробуйте ще раз.");
             } catch (TelegramApiException ex) {
                 log.error("Error sending error message: {}", ex.getMessage(), ex);

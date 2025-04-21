@@ -18,6 +18,7 @@ import com.ua.yushchenko.service.prediction.PredictionService;
 import com.ua.yushchenko.service.telegram.MessageSender;
 import com.ua.yushchenko.service.user.UserService;
 import com.ua.yushchenko.state.BotStateManager;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -31,6 +32,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
  * @author AI
  * @version 0.1-beta
  */
+@Slf4j
 @Component
 public class CommandFactory {
 

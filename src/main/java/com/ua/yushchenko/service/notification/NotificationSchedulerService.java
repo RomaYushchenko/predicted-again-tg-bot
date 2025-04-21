@@ -6,7 +6,6 @@ import com.ua.yushchenko.jobs.NotificationJob;
 import com.ua.yushchenko.service.user.UserService;
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobBuilder;
@@ -16,6 +15,7 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class NotificationSchedulerService {
 
     @NonNull
@@ -35,12 +34,24 @@ public class NotificationSchedulerService {
     @NonNull
     private final UserService userService;
 
+    private final Long predictionTimeZone;
+
+    @Autowired
+    public NotificationSchedulerService(final @NonNull Scheduler scheduler,
+                                        final @NonNull UserService userService,
+                                        @Value("${prediction.time.zone}") final Long predictionTimeZone) {
+        this.scheduler = scheduler;
+        this.userService = userService;
+
+        this.predictionTimeZone = predictionTimeZone;
+    }
+
     @PostConstruct
     public void init() {
         userService.findAll()
                    .forEach(user -> {
                        try {
-                           scheduleDailyNotification(user.getChatId(), user.getNotificationTime().minusHours(3));
+                           scheduleDailyNotification(user.getChatId(), user.getNotificationTime());
                        } catch (final SchedulerException e) {
                            log.error("Unexpected Exception: {}", e.getMessage(), e);
                        }
@@ -57,8 +68,10 @@ public class NotificationSchedulerService {
         final String jobIdentity = "user_notification_" + chatId;
         final JobKey jobKey = JobKey.jobKey(jobIdentity, "notification_group");
 
+        final LocalDateTime kievTime = time.minusHours(predictionTimeZone);
+
         log.info("scheduleDailyNotification.E: Start to planning Notification daily job for user [{}] with data [{}]",
-                 chatId, time);
+                 chatId, kievTime);
 
         if (scheduler.checkExists(jobKey)) {
             log.info("scheduleDailyNotification.X: Notification group {} already exists", jobIdentity);
@@ -72,15 +85,15 @@ public class NotificationSchedulerService {
 
         final Trigger trigger = TriggerBuilder.newTrigger()
                                               .withIdentity("trigger_" + jobIdentity, "notification_group")
-                                              .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(time.getHour(),
-                                                                                                     time.getMinute()))
+                                              .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(kievTime.getHour(),
+                                                                                                     kievTime.getMinute()))
                                               .forJob(jobDetail)
                                               .build();
 
         scheduler.scheduleJob(jobDetail, trigger);
 
         log.info("scheduleDailyNotification.X: Job [{}] was created for user [{}] with data [{}]", jobKey, chatId,
-                 time);
+                 kievTime);
     }
 
     /**
@@ -97,7 +110,7 @@ public class NotificationSchedulerService {
         log.info(
                 "updateScheduleDailyNotification.E: Start to updating Notification daily job for user [{}] with data " +
                         "[{}]",
-                chatId, newTime);
+                chatId, newTime.minusHours(predictionTimeZone));
 
         if (!scheduler.checkExists(jobKey)) {
             log.info("updateScheduleDailyNotification.X: Notification group {} is not already exists", jobIdentity);
@@ -109,6 +122,6 @@ public class NotificationSchedulerService {
         scheduleDailyNotification(chatId, newTime);
 
         log.info("updateScheduleDailyNotification.X: Job [{}] was updated for user [{}] with data [{}]",
-                 jobKey, chatId, newTime);
+                 jobKey, chatId, newTime.minusHours(predictionTimeZone));
     }
 }

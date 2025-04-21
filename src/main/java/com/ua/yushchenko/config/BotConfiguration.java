@@ -23,7 +23,6 @@ import com.ua.yushchenko.state.BotStateManager;
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -108,10 +107,9 @@ public class BotConfiguration {
                                          DailyPredictionService dailyPredictionService,
                                          NotificationSchedulerService notificationSchedulerService,
                                          BotStateManager stateManager,
-                                         UserService userService,
-                                         @Value("${prediction.time.zone}") final Long predictionTimeZone) {
+                                         UserService userService) {
         return new CommandFactory(bot, predictionService, dailyPredictionService,
-                                  notificationSchedulerService, stateManager, userService, predictionTimeZone);
+                                  notificationSchedulerService, stateManager, userService);
     }
 
     /**

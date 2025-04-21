@@ -8,7 +8,6 @@ import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.prediction.PredictionService;
 import com.ua.yushchenko.service.user.UserService;
 import org.quartz.SchedulerException;
-import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -20,8 +19,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  */
 public class StartCommand extends BaseMessageCommand {
 
-    private final Long predictionTimeZone;
-
     private final NotificationSchedulerService notificationSchedulerService;
     private final UserService userService;
 
@@ -30,24 +27,22 @@ public class StartCommand extends BaseMessageCommand {
                            final PredictionService predictionService,
                            final DailyPredictionService dailyPredictionService,
                            final NotificationSchedulerService notificationSchedulerService,
-                           final UserService userService,
-                           final Long predictionTimeZone) {
+                           final UserService userService) {
         super(bot, chatId, predictionService, dailyPredictionService);
         this.notificationSchedulerService = notificationSchedulerService;
         this.userService = userService;
-        this.predictionTimeZone = predictionTimeZone;
     }
 
     @Override
     public void execute(Update update) throws TelegramApiException, SchedulerException {
-        LocalDateTime notificationTime = LocalDateTime.now()
-                                                      .withHour(9)
-                                                      .withMinute(0)
-                                                      .withSecond(0)
-                                                      .withNano(0);
+        final LocalDateTime notificationTime = LocalDateTime.now()
+                                                            .withHour(9)
+                                                            .withMinute(0)
+                                                            .withSecond(0)
+                                                            .withNano(0);
 
-        userService.saveNotificationTime(chatId, notificationTime.minusHours(predictionTimeZone));
-        notificationSchedulerService.scheduleDailyNotification(chatId, notificationTime.minusHours(predictionTimeZone));
+        userService.saveNotificationTime(chatId, notificationTime);
+        notificationSchedulerService.scheduleDailyNotification(chatId, notificationTime);
 
         String welcomeMessage = """
                 👋 Вітаю! Я бот передбачень, який допоможе вам дізнатися, що чекає на вас у майбутньому.

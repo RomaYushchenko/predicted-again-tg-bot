@@ -1,12 +1,5 @@
 package com.ua.yushchenko.service.user;
 
-import com.ua.yushchenko.model.User;
-import com.ua.yushchenko.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -14,6 +7,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.ua.yushchenko.model.User;
+import com.ua.yushchenko.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implementation of UserService.
@@ -26,18 +26,6 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
-    @Override
-    public User findById(Long userId) {
-        Optional<User> user = userRepository.findById(userId);
-
-        if (user.isEmpty()) {
-            log.error("User with id {} not found", userId);
-            return null;
-        }
-
-        return user.get();
-    }
 
     @Override
     public User findByChatId(final Long chatId) {
@@ -70,14 +58,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findAllByNotificationsEnabled(boolean enabled) {
-        return enabled ? userRepository.findAllByNotificationsEnabledTrue() : List.of();
-    }
-
-    @Override
     public void saveTimeZone(long chatId, String timeZone) {
         User user = userRepository.findByChatId(chatId)
-            .orElseGet(() -> createUser(chatId));
+                                  .orElseGet(() -> createUser(chatId));
         user.setTimeZone(timeZone);
         userRepository.save(user);
     }
@@ -85,8 +68,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public String getTimeZone(long chatId) {
         return userRepository.findByChatId(chatId)
-            .map(User::getTimeZone)
-            .orElse("Europe/Kiev");
+                             .map(User::getTimeZone)
+                             .orElse("Europe/Kiev");
     }
 
     @Override
@@ -106,7 +89,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void saveNotificationTime(long chatId, LocalDateTime time) {
         User user = userRepository.findByChatId(chatId)
-            .orElseGet(() -> createUser(chatId));
+                                  .orElseGet(() -> createUser(chatId));
         user.setNotificationTime(time);
         userRepository.save(user);
     }
@@ -114,28 +97,31 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<LocalDateTime> getNotificationTime(long chatId) {
         return userRepository.findByChatId(chatId)
-            .map(User::getNotificationTime);
+                             .map(User::getNotificationTime);
+    }
+
+    /**
+     * {@inheritDoc}
+     * Toggles the notification state by getting the current state and saving its opposite.
+     */
+    @Override
+    public void toggleNotifications(long chatId) {
+        boolean currentState = isNotificationsEnabled(chatId);
+        saveNotificationState(chatId, !currentState);
     }
 
     @Override
     public void saveNotificationState(long chatId, boolean enabled) {
         User user = userRepository.findByChatId(chatId)
-            .orElseGet(() -> createUser(chatId));
+                                  .orElseGet(() -> createUser(chatId));
         user.setNotificationsEnabled(enabled);
         userRepository.save(user);
     }
 
     @Override
-    public boolean getNotificationState(long chatId) {
-        return userRepository.findByChatId(chatId)
-            .map(User::isNotificationsEnabled)
-            .orElse(false);
-    }
-
-    @Override
     public void saveLastPrediction(long chatId, String prediction) {
         User user = userRepository.findByChatId(chatId)
-            .orElseGet(() -> createUser(chatId));
+                                  .orElseGet(() -> createUser(chatId));
         user.setLastPrediction(prediction);
         userRepository.save(user);
     }
@@ -143,51 +129,37 @@ public class UserServiceImpl implements UserService {
     @Override
     public String getLastPrediction(long chatId) {
         return userRepository.findByChatId(chatId)
-            .map(User::getLastPrediction)
-            .orElse(null);
-    }
-
-    @Override
-    public Set<Long> getAllChatsWithNotifications() {
-        return userRepository.findAllByNotificationsEnabledTrue().stream()
-            .map(User::getChatId)
-            .collect(Collectors.toSet());
+                             .map(User::getLastPrediction)
+                             .orElse(null);
     }
 
     @Override
     public boolean isNotificationsEnabled(long chatId) {
         return userRepository.findByChatId(chatId)
-            .map(User::isNotificationsEnabled)
-            .orElse(false);
+                             .map(User::isNotificationsEnabled)
+                             .orElse(false);
     }
 
+    /**
+     * {@inheritDoc}
+     * Delegates to UserService to set the notification time.
+     */
     @Override
-    public void toggleNotifications(long chatId) {
-        User user = userRepository.findByChatId(chatId)
-            .orElseGet(() -> createUser(chatId));
-        user.setNotificationsEnabled(!user.isNotificationsEnabled());
-        userRepository.save(user);
+    public void setNotificationTime(long chatId, LocalDateTime time) {
+        if (time == null) {
+            throw new IllegalArgumentException("Notification time cannot be null");
+        }
+
+        saveNotificationTime(chatId, time);
     }
 
+    /**
+     * {@inheritDoc}
+     * Delegates to UserService to enable notifications.
+     */
     @Override
-    public Set<Long> findChatsWithNotifications(LocalDateTime time) {
-        return userRepository.findAllByNotificationsEnabledTrueAndNotificationTime(time).stream()
-            .map(User::getChatId)
-            .collect(Collectors.toSet());
-    }
-
-    @Override
-    public void saveLastNotificationTime(long chatId, LocalDateTime time) {
-        User user = userRepository.findByChatId(chatId)
-            .orElseGet(() -> createUser(chatId));
-        user.setLastNotificationTime(time);
-        userRepository.save(user);
-    }
-
-    @Override
-    public Optional<LocalDateTime> getLastNotificationTime(long chatId) {
-        return userRepository.findByChatId(chatId)
-            .map(User::getLastNotificationTime);
+    public void enableNotifications(long chatId) {
+        saveNotificationState(chatId, true);
     }
 
     private User createUser(long chatId) {

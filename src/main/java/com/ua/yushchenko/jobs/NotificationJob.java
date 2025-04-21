@@ -3,8 +3,8 @@ package com.ua.yushchenko.jobs;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import com.ua.yushchenko.service.MessageSender;
 import com.ua.yushchenko.service.prediction.PredictionService;
+import com.ua.yushchenko.service.telegram.MessageSender;
 import com.ua.yushchenko.service.user.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,7 @@ import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 /**
@@ -22,7 +23,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  * @version 0.2
  */
 @Slf4j
-@RequiredArgsConstructor
 public class NotificationJob implements Job {
 
     @NonNull
@@ -31,6 +31,18 @@ public class NotificationJob implements Job {
     private final PredictionService predictionService;
     @NonNull
     private final MessageSender messageSender;
+
+    private final Long predictionTimeZone;
+
+    public NotificationJob(final @NonNull UserService userService,
+                           final @NonNull PredictionService predictionService,
+                           final @NonNull MessageSender messageSender,
+                           @Value("${prediction.time.zone}") final Long predictionTimeZone) {
+        this.userService = userService;
+        this.predictionService = predictionService;
+        this.messageSender = messageSender;
+        this.predictionTimeZone = predictionTimeZone;
+    }
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
@@ -48,7 +60,7 @@ public class NotificationJob implements Job {
             try {
                 messageSender.sendMessage(user.getChatId(), prediction);
 
-                user.setLastNotificationTime(now);
+                user.setLastNotificationTime(now.plusHours(predictionTimeZone));
                 userService.save(user);
 
                 log.info("execute.X: Sending prediction [{}] to user [{}]", prediction, chatId);
@@ -62,7 +74,8 @@ public class NotificationJob implements Job {
 
                 log.error("Failed to send daily prediction to user {}: {}", chatId, e.getMessage());
             } catch (final Exception e) {
-                log.error("Unexpected exception: Failed to send daily prediction to user {}: {}", chatId, e.getMessage());
+                log.error("Unexpected exception: Failed to send daily prediction to user {}: {}", chatId,
+                          e.getMessage());
             }
         }
 

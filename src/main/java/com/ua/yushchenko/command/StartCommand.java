@@ -2,10 +2,8 @@ package com.ua.yushchenko.command;
 
 import java.time.LocalDateTime;
 
-import com.ua.yushchenko.bot.TelegramBot;
-import com.ua.yushchenko.service.DailyPredictionService;
 import com.ua.yushchenko.service.notification.NotificationSchedulerService;
-import com.ua.yushchenko.service.prediction.PredictionService;
+import com.ua.yushchenko.service.telegram.MessageSender;
 import com.ua.yushchenko.service.user.UserService;
 import org.quartz.SchedulerException;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -17,18 +15,16 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  * @author AI
  * @version 0.1-beta
  */
-public class StartCommand extends BaseMessageCommand {
+public class StartCommand extends AbstractMessageCommand {
 
     private final NotificationSchedulerService notificationSchedulerService;
     private final UserService userService;
 
-    protected StartCommand(final TelegramBot bot,
+    protected StartCommand(final MessageSender messageSender,
                            final long chatId,
-                           final PredictionService predictionService,
-                           final DailyPredictionService dailyPredictionService,
                            final NotificationSchedulerService notificationSchedulerService,
                            final UserService userService) {
-        super(bot, chatId, predictionService, dailyPredictionService);
+        super(messageSender, chatId);
         this.notificationSchedulerService = notificationSchedulerService;
         this.userService = userService;
     }
@@ -55,7 +51,7 @@ public class StartCommand extends BaseMessageCommand {
                 
                 Оберіть опцію з меню нижче:""";
 
-        sendMessage(welcomeMessage, createMainMenuKeyboard());
+        messageSender.sendMessage(chatId, welcomeMessage, createMainMenuKeyboard());
 
     }
 

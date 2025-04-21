@@ -1,8 +1,7 @@
 package com.ua.yushchenko.command;
 
-import com.ua.yushchenko.bot.TelegramBot;
-import com.ua.yushchenko.service.DailyPredictionService;
 import com.ua.yushchenko.service.prediction.PredictionService;
+import com.ua.yushchenko.service.telegram.MessageSender;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -13,19 +12,23 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  * @author AI
  * @version 0.1-beta
  */
-public class QuickPredictionCommand extends BaseMessageCommand {
+public class QuickPredictionCommand extends AbstractMessageCommand {
+
+    private final PredictionService predictionService;
+
     /**
      * Creates a new quick prediction command.
      *
-     * @param bot the bot instance
-     * @param chatId ID of the chat where the command was invoked
+     * @param messageSender     the bot instance
+     * @param chatId            ID of the chat where the command was invoked
      * @param predictionService service for generating predictions
-     * @param dailyPredictionService service for handling daily predictions
      */
-    public QuickPredictionCommand(TelegramBot bot, long chatId,
-                                PredictionService predictionService,
-                                DailyPredictionService dailyPredictionService) {
-        super(bot, chatId, predictionService, dailyPredictionService);
+    public QuickPredictionCommand(MessageSender messageSender,
+                                  long chatId,
+                                  PredictionService predictionService) {
+        super(messageSender, chatId);
+
+        this.predictionService = predictionService;
     }
 
     /**
@@ -38,7 +41,7 @@ public class QuickPredictionCommand extends BaseMessageCommand {
     @Override
     public void execute(Update update) throws TelegramApiException {
         String prediction = predictionService.generateQuickPrediction(chatId);
-        sendMessage(prediction, createPredictionInlineKeyboard());
+        messageSender.sendMessage(chatId, prediction, createPredictionInlineKeyboard());
     }
 
     @Override

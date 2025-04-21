@@ -13,14 +13,6 @@ import com.ua.yushchenko.model.User;
  */
 public interface UserService {
 
-    /**
-     * Знаходить користувача за ID.
-     *
-     * @param userId ID користувача
-     * @return користувач
-     */
-    User findById(Long userId);
-
     User findByChatId(Long chatId);
 
     List<User> findAll();
@@ -32,14 +24,6 @@ public interface UserService {
      * @return збережений користувач
      */
     User save(User user);
-
-    /**
-     * Знаходить всіх користувачів з увімкненими сповіщеннями.
-     *
-     * @param enabled стан сповіщень
-     * @return список користувачів
-     */
-    List<User> findAllByNotificationsEnabled(boolean enabled);
 
     /**
      * Зберігає час сповіщень для користувача.
@@ -57,6 +41,23 @@ public interface UserService {
      */
     Optional<LocalDateTime> getNotificationTime(long chatId);
 
+    void toggleNotifications(long chatId);
+
+    /**
+     * Sets the notification time for a user.
+     *
+     * @param chatId ID of the user's chat
+     * @param time   time at which notifications should be sent
+     */
+    void setNotificationTime(long chatId, LocalDateTime time);
+
+    /**
+     * Enables notifications for a user.
+     *
+     * @param chatId ID of the user's chat
+     */
+    void enableNotifications(long chatId);
+
     /**
      * Зберігає стан сповіщень для користувача.
      *
@@ -64,14 +65,6 @@ public interface UserService {
      * @param enabled стан сповіщень
      */
     void saveNotificationState(long chatId, boolean enabled);
-
-    /**
-     * Отримує стан сповіщень для користувача.
-     *
-     * @param chatId ID чату користувача
-     * @return true, якщо сповіщення увімкнені
-     */
-    boolean getNotificationState(long chatId);
 
     /**
      * Зберігає останнє передбачення для користувача.
@@ -89,35 +82,7 @@ public interface UserService {
      */
     String getLastPrediction(long chatId);
 
-    /**
-     * Отримує список всіх чатів, де увімкнені сповіщення.
-     *
-     * @return множина ID чатів
-     */
-    Set<Long> getAllChatsWithNotifications();
-
-    /**
-     * Перевіряє, чи увімкнені сповіщення для користувача.
-     *
-     * @param chatId ID чату користувача
-     * @return true, якщо сповіщення увімкнені
-     */
     boolean isNotificationsEnabled(long chatId);
-
-    /**
-     * Перемикає стан сповіщень для користувача.
-     *
-     * @param chatId ID чату користувача
-     */
-    void toggleNotifications(long chatId);
-
-    /**
-     * Знаходить всі чати з увімкненими сповіщеннями на вказаний час.
-     *
-     * @param time час сповіщень
-     * @return множина ID чатів
-     */
-    Set<Long> findChatsWithNotifications(LocalDateTime time);
 
     /**
      * Зберігає часовий пояс для користувача.
@@ -152,22 +117,6 @@ public interface UserService {
      * @return локальний час користувача
      */
     LocalDateTime convertFromUTC(long chatId, LocalDateTime utcDateTime);
-
-    /**
-     * Зберігає час останнього сповіщення для користувача.
-     *
-     * @param chatId ID чату користувача
-     * @param time   час останнього сповіщення
-     */
-    void saveLastNotificationTime(long chatId, LocalDateTime time);
-
-    /**
-     * Отримує час останнього сповіщення для користувача.
-     *
-     * @param chatId ID чату користувача
-     * @return час останнього сповіщення або пустий Optional, якщо сповіщень ще не було
-     */
-    Optional<LocalDateTime> getLastNotificationTime(long chatId);
 
     void removeUser(long userId);
 } 

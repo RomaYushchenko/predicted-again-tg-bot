@@ -1,64 +1,31 @@
 package com.ua.yushchenko.command;
 
-import com.ua.yushchenko.bot.TelegramBot;
-import com.ua.yushchenko.service.DailyPredictionService;
-import com.ua.yushchenko.service.prediction.PredictionService;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import static com.ua.yushchenko.command.CommandConstants.BUTTON_ANOTHER_PREDICTION;
+import static com.ua.yushchenko.command.CommandConstants.BUTTON_CHANGE_TIME;
+import static com.ua.yushchenko.command.CommandConstants.BUTTON_DISABLE_NOTIFICATIONS;
+import static com.ua.yushchenko.command.CommandConstants.BUTTON_ENABLE_NOTIFICATIONS;
+import static com.ua.yushchenko.command.CommandConstants.CALLBACK_ANOTHER_DAILY;
+import static com.ua.yushchenko.command.CommandConstants.CALLBACK_ANOTHER_PREDICTION;
+import static com.ua.yushchenko.command.CommandConstants.CALLBACK_CHANGE_TIME;
+import static com.ua.yushchenko.command.CommandConstants.CALLBACK_TOGGLE_NOTIFICATIONS;
+import static com.ua.yushchenko.command.CommandConstants.COMMAND_DAILY_PREDICTION;
+import static com.ua.yushchenko.command.CommandConstants.COMMAND_QUICK_PREDICTION;
+import static com.ua.yushchenko.command.CommandConstants.COMMAND_SETTINGS_BUTTON;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.ua.yushchenko.service.telegram.MessageSender;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
-import java.util.List;
+public abstract class AbstractMessageCommand extends AbstractCommand {
 
-import static com.ua.yushchenko.command.CommandConstants.*;
-
-public abstract class BaseMessageCommand extends BaseCommand {
-
-    protected BaseMessageCommand(TelegramBot bot, long chatId,
-                               PredictionService predictionService,
-                               DailyPredictionService dailyPredictionService) {
-        super(bot, chatId, predictionService, dailyPredictionService);
-    }
-
-    protected void sendMessage(String text) {
-        SendMessage message = SendMessage.builder()
-                .chatId(chatId)
-                .text(text)
-                .build();
-        try {
-            bot.execute(message);
-        } catch (TelegramApiException e) {
-            handleError(e);
-        }
-    }
-
-    protected void sendMessage(String text, ReplyKeyboardMarkup replyMarkup) {
-        SendMessage message = SendMessage.builder()
-                .chatId(chatId)
-                .text(text)
-                .replyMarkup(replyMarkup)
-                .build();
-        try {
-            bot.execute(message);
-        } catch (TelegramApiException e) {
-            handleError(e);
-        }
-    }
-
-    protected void sendMessage(String text, InlineKeyboardMarkup replyMarkup) {
-        SendMessage message = SendMessage.builder()
-                .chatId(chatId)
-                .text(text)
-                .replyMarkup(replyMarkup)
-                .build();
-        try {
-            bot.execute(message);
-        } catch (TelegramApiException e) {
-            handleError(e);
-        }
+    protected AbstractMessageCommand(MessageSender messageSender, long chatId) {
+        super(messageSender, chatId);
     }
 
     protected ReplyKeyboardMarkup createMainMenuKeyboard() {
@@ -122,7 +89,9 @@ public abstract class BaseMessageCommand extends BaseCommand {
 
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         InlineKeyboardButton toggleButton = new InlineKeyboardButton();
-        toggleButton.setText(notificationsEnabled ? BUTTON_DISABLE_NOTIFICATIONS : BUTTON_ENABLE_NOTIFICATIONS);
+        toggleButton.setText(notificationsEnabled
+                                     ? BUTTON_DISABLE_NOTIFICATIONS
+                                     : BUTTON_ENABLE_NOTIFICATIONS);
         toggleButton.setCallbackData(CALLBACK_TOGGLE_NOTIFICATIONS);
         row1.add(toggleButton);
 
@@ -155,7 +124,7 @@ public abstract class BaseMessageCommand extends BaseCommand {
         return markupInline;
     }
 
-    protected void showMainMenu() {
-        sendMessage("Головне меню:", createMainMenuKeyboard());
+    protected void showMainMenu() throws TelegramApiException {
+        messageSender.sendMessage(chatId, "Головне меню:", createMainMenuKeyboard());
     }
 } 

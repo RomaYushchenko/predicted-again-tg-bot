@@ -6,6 +6,8 @@ import com.ua.yushchenko.bot.TelegramBot;
 import com.ua.yushchenko.command.CommandFactory;
 import com.ua.yushchenko.common.SplitMix64RandomGenerator;
 import com.ua.yushchenko.model.Prediction;
+import com.ua.yushchenko.repository.PredictionRepository;
+import com.ua.yushchenko.repository.UserPredictionRepository;
 import com.ua.yushchenko.repository.UserRepository;
 import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.prediction.PredictionService;
@@ -159,13 +161,16 @@ public class BotConfiguration {
      * Creates PredictionService bean for generating predictions.
      *
      * @param userService service for user management
-     * @param predictions list of available predictions
      * @return configured PredictionService instance
      */
     @Bean
-    public PredictionService predictionService(UserService userService, List<Prediction> predictions,
-                                               SplitMix64RandomGenerator splitMix64RandomGenerator) {
-        return new PredictionServiceImpl(userService, predictions, splitMix64RandomGenerator);
+    public PredictionService predictionService(final UserPredictionRepository userPredictionRepository,
+                                               final PredictionRepository predictionRepository,
+                                               final UserService userService,
+                                               final List<Prediction> predictions,
+                                               final SplitMix64RandomGenerator splitMix64RandomGenerator) {
+        return new PredictionServiceImpl(userPredictionRepository, predictionRepository,
+                                         userService, predictions, splitMix64RandomGenerator);
     }
 
     /**

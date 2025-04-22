@@ -1,15 +1,19 @@
 package com.ua.yushchenko.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Column;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Entity class representing a Telegram bot user.
@@ -47,4 +51,7 @@ public class User {
     /** Час останнього надісланого сповіщення */
     @Column(name = "last_notification_time")
     private LocalDateTime lastNotificationTime;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserPrediction> predictions = new ArrayList<>();
 } 

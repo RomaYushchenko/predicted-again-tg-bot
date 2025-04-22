@@ -55,13 +55,14 @@ public class NotificationJob implements Job {
         final var user = userService.findByChatId(chatId);
 
         if (Objects.nonNull(user) && user.isNotificationsEnabled()) {
-            final String prediction = predictionService.generateDailyPrediction(user.getChatId());
+            final String prediction = predictionService.generateUniquePrediction(user.getChatId());
 
             try {
                 messageSender.sendMessage(user.getChatId(), prediction);
 
                 user.setLastNotificationTime(now.plusHours(predictionTimeZone));
                 userService.save(user);
+                predictionService.saveUserPrediction(user, prediction);
 
                 log.info("execute.X: Sending prediction [{}] to user [{}]", prediction, chatId);
                 return;

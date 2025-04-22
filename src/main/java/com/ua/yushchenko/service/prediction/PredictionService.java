@@ -1,5 +1,7 @@
 package com.ua.yushchenko.service.prediction;
 
+import com.ua.yushchenko.model.User;
+
 /**
  * Service interface for generating predictions.
  * Provides methods for generating both quick and daily predictions.
@@ -9,6 +11,7 @@ package com.ua.yushchenko.service.prediction;
  * @version 0.1-beta
  */
 public interface PredictionService {
+
     /**
      * Generates a quick prediction for a user.
      * Quick predictions are shorter and more immediate in nature.
@@ -26,4 +29,20 @@ public interface PredictionService {
      * @return generated daily prediction text
      */
     String generateDailyPrediction(long chatId);
+
+    /**
+     * Generates an unique prediction for a user.
+     *
+     * @param chatId ID of the user's chat
+     * @return generated unique prediction text
+     */
+    String generateUniquePrediction(final long chatId);
+
+    /**
+     * Save user prediction
+     *
+     * @param user       instance of user
+     * @param prediction instance of prediction
+     */
+    void saveUserPrediction(final User user, final String prediction);
 } 

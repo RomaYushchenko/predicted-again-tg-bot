@@ -83,7 +83,7 @@ public class ReactionButtonBuilder {
         final StringBuilder buttonText = new StringBuilder();
 
         if (metadata.isSelected()) {
-            buttonText.append("✅");
+            buttonText.append("✅ ");
         }
 
         buttonText.append(metadata.type().getEmoji())

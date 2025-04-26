@@ -1,5 +1,6 @@
 package com.ua.yushchenko.service.prediction;
 
+import com.ua.yushchenko.model.Prediction;
 import com.ua.yushchenko.model.User;
 
 /**
@@ -34,9 +35,9 @@ public interface PredictionService {
      * Generates an unique prediction for a user.
      *
      * @param chatId ID of the user's chat
-     * @return generated unique prediction text
+     * @return generated unique prediction
      */
-    String generateUniquePrediction(final long chatId);
+    Prediction generateUniquePrediction(final long chatId);
 
     /**
      * Save user prediction

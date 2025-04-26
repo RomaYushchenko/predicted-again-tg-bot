@@ -55,16 +55,16 @@ public class PredictionServiceImpl implements PredictionService {
     }
 
     @Override
-    public String generateUniquePrediction(final long chatId) {
+    public Prediction generateUniquePrediction(final long chatId) {
         final User user = userService.findByChatId(chatId);
         final List<String> top30PredictionOfUser = getTop30PredictionOfUser(user);
         final List<Prediction> allPredictions = predictionRepository.findAll();
 
-        String prediction;
+        Prediction prediction;
 
         do {
-            prediction = allPredictions.get(randomGenerator.nextInt(allPredictions.size())).getText();
-        } while (top30PredictionOfUser.contains(prediction) && top30PredictionOfUser.size() > 1);
+            prediction = allPredictions.get(randomGenerator.nextInt(allPredictions.size()));
+        } while (top30PredictionOfUser.contains(prediction.getText()) && top30PredictionOfUser.size() > 1);
 
         return prediction;
     }

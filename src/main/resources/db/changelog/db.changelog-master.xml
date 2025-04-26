@@ -12,4 +12,5 @@
     <include file="classpath:db/changelog/changes/008-update-notification-time-types.xml"/>
     <include file="classpath:db/changelog/changes/009-add-quartz-tables.xml"/>
     <include file="classpath:db/changelog/changes/010-add-user-predictions-table.xml"/>
+    <include file="classpath:db/changelog/changes/011-add-reactions-table.xml"/>
 </databaseChangeLog>

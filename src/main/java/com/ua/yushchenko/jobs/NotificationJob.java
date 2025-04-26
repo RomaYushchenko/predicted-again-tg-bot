@@ -3,11 +3,12 @@ package com.ua.yushchenko.jobs;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import com.ua.yushchenko.builder.ui.reaction.ReactionButtonBuilder;
+import com.ua.yushchenko.model.Prediction;
 import com.ua.yushchenko.service.prediction.PredictionService;
 import com.ua.yushchenko.service.telegram.MessageSender;
 import com.ua.yushchenko.service.user.UserService;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -31,16 +32,20 @@ public class NotificationJob implements Job {
     private final PredictionService predictionService;
     @NonNull
     private final MessageSender messageSender;
+    @NonNull
+    private final ReactionButtonBuilder reactionButtonBuilder;
 
     private final Long predictionTimeZone;
 
     public NotificationJob(final @NonNull UserService userService,
                            final @NonNull PredictionService predictionService,
                            final @NonNull MessageSender messageSender,
+                           final @NonNull ReactionButtonBuilder reactionButtonBuilder,
                            @Value("${prediction.time.zone}") final Long predictionTimeZone) {
         this.userService = userService;
         this.predictionService = predictionService;
         this.messageSender = messageSender;
+        this.reactionButtonBuilder = reactionButtonBuilder;
         this.predictionTimeZone = predictionTimeZone;
     }
 
@@ -55,16 +60,18 @@ public class NotificationJob implements Job {
         final var user = userService.findByChatId(chatId);
 
         if (Objects.nonNull(user) && user.isNotificationsEnabled()) {
-            final String prediction = predictionService.generateUniquePrediction(user.getChatId());
+            final Prediction prediction = predictionService.generateUniquePrediction(user.getChatId());
 
             try {
-                messageSender.sendMessage(user.getChatId(), prediction);
+                messageSender.sendMessage(user.getChatId(),
+                                          prediction.getText(),
+                                          reactionButtonBuilder.build(prediction.getId()));
 
                 user.setLastNotificationTime(now.plusHours(predictionTimeZone));
                 userService.save(user);
-                predictionService.saveUserPrediction(user, prediction);
+                predictionService.saveUserPrediction(user, prediction.getText());
 
-                log.info("execute.X: Sending prediction [{}] to user [{}]", prediction, chatId);
+                log.info("execute.X: Sending prediction [{}] to user [{}]", prediction.getText(), chatId);
                 return;
             } catch (final TelegramApiException e) {
                 if (e.getMessage().contains("bot was blocked by the user")) {

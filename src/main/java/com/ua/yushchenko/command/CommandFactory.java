@@ -3,6 +3,9 @@ package com.ua.yushchenko.command;
 import static com.ua.yushchenko.command.CommandConstants.CALLBACK_ANOTHER_DAILY;
 import static com.ua.yushchenko.command.CommandConstants.CALLBACK_ANOTHER_PREDICTION;
 import static com.ua.yushchenko.command.CommandConstants.CALLBACK_CHANGE_TIME;
+import static com.ua.yushchenko.command.CommandConstants.CALLBACK_REACTION_BAD;
+import static com.ua.yushchenko.command.CommandConstants.CALLBACK_REACTION_FUNNY;
+import static com.ua.yushchenko.command.CommandConstants.CALLBACK_REACTION_SUPER;
 import static com.ua.yushchenko.command.CommandConstants.CALLBACK_SETTINGS;
 import static com.ua.yushchenko.command.CommandConstants.CALLBACK_TOGGLE_NOTIFICATIONS;
 import static com.ua.yushchenko.command.CommandConstants.COMMAND_DAILY;
@@ -13,8 +16,13 @@ import static com.ua.yushchenko.command.CommandConstants.COMMAND_SETTINGS;
 import static com.ua.yushchenko.command.CommandConstants.COMMAND_SETTINGS_BUTTON;
 import static com.ua.yushchenko.command.CommandConstants.COMMAND_START;
 
+import java.util.Map;
+
+import com.ua.yushchenko.builder.ui.reaction.ReactionButtonBuilder;
+import com.ua.yushchenko.model.ReactionType;
 import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.prediction.PredictionService;
+import com.ua.yushchenko.service.reaction.ReactionService;
 import com.ua.yushchenko.service.telegram.MessageSender;
 import com.ua.yushchenko.service.user.UserService;
 import com.ua.yushchenko.state.BotStateManager;
@@ -41,8 +49,15 @@ public class CommandFactory {
     private final NotificationSchedulerService notificationSchedulerService;
     private final BotStateManager stateManager;
     private final UserService userService;
+    private final ReactionService reactionService;
+    private final ReactionButtonBuilder reactionButtonBuilder;
 
     private static final Logger log = LoggerFactory.getLogger(CommandFactory.class);
+
+    private static final Map<String, ReactionType> CALLBACK_TO_REACTION =
+            Map.of(CALLBACK_REACTION_SUPER, ReactionType.SUPER,
+                   CALLBACK_REACTION_FUNNY, ReactionType.FUNNY,
+                   CALLBACK_REACTION_BAD, ReactionType.BAD);
 
     /**
      * Creates a new CommandFactory instance.
@@ -56,12 +71,16 @@ public class CommandFactory {
                           final PredictionService predictionService,
                           final NotificationSchedulerService notificationSchedulerService,
                           final BotStateManager stateManager,
-                          final UserService userService) {
+                          final UserService userService,
+                          final ReactionService reactionService,
+                          final ReactionButtonBuilder reactionButtonBuilder) {
         this.messageSender = messageSender;
         this.predictionService = predictionService;
         this.notificationSchedulerService = notificationSchedulerService;
         this.stateManager = stateManager;
         this.userService = userService;
+        this.reactionService = reactionService;
+        this.reactionButtonBuilder = reactionButtonBuilder;
     }
 
     /**
@@ -121,19 +140,40 @@ public class CommandFactory {
             throw new IllegalArgumentException("Callback query and message cannot be null");
         }
 
-        String data = callbackQuery.getData();
-        long chatId = callbackQuery.getMessage().getChatId();
-        int messageId = callbackQuery.getMessage().getMessageId();
+        final String data = callbackQuery.getData();
+        final long chatId = callbackQuery.getMessage().getChatId();
+        final int messageId = callbackQuery.getMessage().getMessageId();
+
+        final ReactionType reactionType = detectReactionType(data);
+
+        if (reactionType != null) {
+            final long callbackPredictionId = extractPredictionId(data);
+
+            return new ReactionCommand(messageSender, chatId, messageId, callbackPredictionId, reactionType,
+                                       reactionService, reactionButtonBuilder);
+        }
 
         return switch (data) {
             case CALLBACK_SETTINGS -> new SettingsCommand(messageSender, chatId, userService, stateManager);
             case CALLBACK_TOGGLE_NOTIFICATIONS -> new ToggleNotificationsCommand(messageSender, chatId, userService);
             case CALLBACK_CHANGE_TIME -> new ChangeNotificationTimeCommand(messageSender, chatId, stateManager);
-            case CALLBACK_ANOTHER_PREDICTION ->
-                    new AnotherPredictionCommand(messageSender, chatId, messageId, predictionService);
-            case CALLBACK_ANOTHER_DAILY ->
-                    new AnotherDailyPredictionCommand(messageSender, chatId, messageId, predictionService);
+            case CALLBACK_ANOTHER_PREDICTION -> new AnotherPredictionCommand(messageSender, chatId, messageId, predictionService);
+            case CALLBACK_ANOTHER_DAILY -> new AnotherDailyPredictionCommand(messageSender, chatId, messageId, predictionService);
             default -> new UnknownCommand(messageSender, chatId);
         };
+    }
+
+    private ReactionType detectReactionType(String data) {
+        return CALLBACK_TO_REACTION.entrySet()
+                                   .stream()
+                                   .filter(entry -> data.contains(entry.getKey()))
+                                   .map(Map.Entry::getValue)
+                                   .findFirst()
+                                   .orElse(null);
+    }
+
+    private long extractPredictionId(String data) {
+        final String[] parts = data.split("_");
+        return Long.parseLong(parts[parts.length - 1]);
     }
 } 

@@ -3,6 +3,7 @@ package com.ua.yushchenko.config;
 import java.util.List;
 
 import com.ua.yushchenko.bot.TelegramBot;
+import com.ua.yushchenko.builder.ui.reaction.ReactionButtonBuilder;
 import com.ua.yushchenko.command.CommandFactory;
 import com.ua.yushchenko.common.SplitMix64RandomGenerator;
 import com.ua.yushchenko.model.Prediction;
@@ -12,6 +13,7 @@ import com.ua.yushchenko.repository.UserRepository;
 import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.prediction.PredictionService;
 import com.ua.yushchenko.service.prediction.PredictionServiceImpl;
+import com.ua.yushchenko.service.reaction.ReactionService;
 import com.ua.yushchenko.service.telegram.MessageSender;
 import com.ua.yushchenko.service.telegram.MessageSenderImpl;
 import com.ua.yushchenko.service.telegram.TelegramApiExecutor;
@@ -104,9 +106,11 @@ public class BotConfiguration {
                                          PredictionService predictionService,
                                          NotificationSchedulerService notificationSchedulerService,
                                          BotStateManager stateManager,
-                                         UserService userService) {
+                                         UserService userService,
+                                         final ReactionService reactionService,
+                                         final ReactionButtonBuilder reactionButtonBuilder) {
         return new CommandFactory(messageSender, predictionService, notificationSchedulerService, stateManager,
-                                  userService);
+                                  userService, reactionService, reactionButtonBuilder);
     }
 
     /**

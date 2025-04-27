@@ -24,11 +24,11 @@ public class DailyPredictionButtonBuilder {
     private final ReactionButtonBuilder reactionButtonBuilder;
 
     /**
-     * Build Quick Prediction buttons keyboard
+     * Build Daily Prediction buttons keyboard
      *
      * @param predictionId ID of prediction
      * @param firstPrefix  prefix
-     * @return {@link InlineKeyboardMarkup} with Quick Prediction buttons
+     * @return {@link InlineKeyboardMarkup} with Daily Prediction buttons
      */
     public InlineKeyboardMarkup buildKeyboard(final long chatId, final Long predictionId, final String firstPrefix) {
         final InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();

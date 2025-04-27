@@ -43,6 +43,7 @@ public class User {
     private boolean notificationsEnabled;
 
     /** The last prediction sent to this user */
+    @Column(name = "last_prediction")
     private String lastPrediction;
 
     /** Часовий пояс користувача */

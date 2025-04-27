@@ -176,10 +176,9 @@ public class BotConfiguration {
     public PredictionService predictionService(final UserPredictionRepository userPredictionRepository,
                                                final PredictionRepository predictionRepository,
                                                final UserService userService,
-                                               final List<Prediction> predictions,
                                                final SplitMix64RandomGenerator splitMix64RandomGenerator) {
         return new PredictionServiceImpl(userPredictionRepository, predictionRepository,
-                                         userService, predictions, splitMix64RandomGenerator);
+                                         userService, splitMix64RandomGenerator);
     }
 
     /**

@@ -26,7 +26,6 @@ public class PredictionServiceImpl implements PredictionService {
     private final UserPredictionRepository userPredictionRepository;
     private final PredictionRepository predictionRepository;
     private final UserService userService;
-    private final List<Prediction> predictions;
     private final SplitMix64RandomGenerator randomGenerator;
 
     @Override
@@ -44,19 +43,6 @@ public class PredictionServiceImpl implements PredictionService {
             prediction = allPredictions.get(randomGenerator.nextInt(allPredictions.size()));
         } while (prediction.getText().equals(lastPrediction) && allPredictions.size() > 1);
 
-        return prediction;
-    }
-
-    @Override
-    public String generateDailyPrediction(long chatId) {
-        final String lastPrediction = userService.getLastPrediction(chatId);
-
-        String prediction;
-        do {
-            prediction = predictions.get(randomGenerator.nextInt(predictions.size())).getText();
-        } while (prediction.equals(lastPrediction) && predictions.size() > 1);
-
-        userService.saveLastPrediction(chatId, prediction);
         return prediction;
     }
 

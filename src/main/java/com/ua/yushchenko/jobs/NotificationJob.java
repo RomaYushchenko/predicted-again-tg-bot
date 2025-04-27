@@ -62,9 +62,10 @@ public class NotificationJob implements Job {
         final var user = userService.findByChatId(chatId);
 
         if (Objects.nonNull(user) && user.isNotificationsEnabled()) {
-            final Prediction prediction = predictionService.generateUniquePrediction(user.getChatId());
 
             try {
+                final Prediction prediction = predictionService.generateUniquePrediction(user.getChatId());
+
                 messageSender.sendMessage(user.getChatId(),
                                           prediction.getText(),
                                           reactionButtonBuilder.buildKeyboard(chatId, prediction.getId(), DAILY_PREFIX));

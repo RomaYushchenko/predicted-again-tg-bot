@@ -5,6 +5,7 @@ import static com.ua.yushchenko.command.CommandConstants.CALLBACK_REACTION_FUNNY
 import static com.ua.yushchenko.command.CommandConstants.CALLBACK_REACTION_SUPER;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.ua.yushchenko.builder.UserReactionStatisticsBuilder;
@@ -39,12 +40,12 @@ public class ReactionButtonBuilder {
      * @param firstPrefix  prefix
      * @return {@link InlineKeyboardMarkup} with reaction buttons
      */
-    public InlineKeyboardMarkup buildKeyboard(final long predictionId, final String firstPrefix) {
+    public InlineKeyboardMarkup buildKeyboard(final long chatId, final long predictionId, final String firstPrefix) {
         final InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
 
         final List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 
-        rowsInline.add(buildKeyboardRow(predictionId, firstPrefix));
+        rowsInline.add(buildKeyboardRow(chatId, predictionId, firstPrefix));
 
         markupInline.setKeyboard(rowsInline);
 
@@ -58,15 +59,31 @@ public class ReactionButtonBuilder {
      * @param firstPrefix  prefix
      * @return List of {@link InlineKeyboardButton} with reaction buttons
      */
-    public List<InlineKeyboardButton> buildKeyboardRow(final long predictionId, final String firstPrefix) {
+    public List<InlineKeyboardButton> buildKeyboardRow(final long chatId,
+                                                       final long predictionId,
+                                                       final String firstPrefix) {
+
         final List<InlineKeyboardButton> row1 = new ArrayList<>();
 
-        row1.add(buttonBuilder.button(ReactionType.SUPER.getEmoji(),
-                                      firstPrefix + CALLBACK_REACTION_SUPER + predictionId));
-        row1.add(buttonBuilder.button(ReactionType.FUNNY.getEmoji(),
-                                      firstPrefix + CALLBACK_REACTION_FUNNY + predictionId));
-        row1.add(buttonBuilder.button(ReactionType.BAD.getEmoji(),
-                                      firstPrefix + CALLBACK_REACTION_BAD + predictionId));
+        final UserReactionStatistics reactionStatistics = userReactionStatisticsBuilder.build(chatId, predictionId);
+
+        final var reactionMetadata = Arrays.stream(ReactionType.values())
+                                            .map(reactionType -> createReactionMetadata(reactionType,
+                                                                                        reactionStatistics))
+                                            .toList();
+
+        if (reactionMetadata.stream().anyMatch(ReactionMetadata::isSelected)) {
+            for (final ReactionMetadata metadata : reactionMetadata) {
+                row1.add(buildReactionButton(metadata, firstPrefix, predictionId));
+            }
+        } else {
+            row1.add(buttonBuilder.button(ReactionType.SUPER.getEmoji(),
+                                          firstPrefix + CALLBACK_REACTION_SUPER + predictionId));
+            row1.add(buttonBuilder.button(ReactionType.FUNNY.getEmoji(),
+                                          firstPrefix + CALLBACK_REACTION_FUNNY + predictionId));
+            row1.add(buttonBuilder.button(ReactionType.BAD.getEmoji(),
+                                          firstPrefix + CALLBACK_REACTION_BAD + predictionId));
+        }
 
         return row1;
     }
@@ -79,18 +96,18 @@ public class ReactionButtonBuilder {
      * @param firstPrefix  prefix
      * @return {@link InlineKeyboardMarkup} with reaction buttons
      */
-    public InlineKeyboardMarkup buildCallbackKeyboard(final long chatId,
-                                                      final long predictionId,
-                                                      final String firstPrefix) {
-        final InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
-
-        final List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-
-        rowsInline.add(buildCallbackKeyboardRow(chatId, predictionId, firstPrefix));
-
-        markupInline.setKeyboard(rowsInline);
-        return markupInline;
-    }
+//    public InlineKeyboardMarkup buildCallbackKeyboard(final long chatId,
+//                                                      final long predictionId,
+//                                                      final String firstPrefix) {
+//        final InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+//
+//        final List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+//
+//        rowsInline.add(buildCallbackKeyboardRow(chatId, predictionId, firstPrefix));
+//
+//        markupInline.setKeyboard(rowsInline);
+//        return markupInline;
+//    }
 
     /**
      * Build reaction buttons row  wth callback reactions
@@ -100,22 +117,22 @@ public class ReactionButtonBuilder {
      * @param firstPrefix  prefix
      * @return List of {@link InlineKeyboardButton} with reaction buttons
      */
-    public List<InlineKeyboardButton> buildCallbackKeyboardRow(final long chatId,
-                                                               final long predictionId,
-                                                               final String firstPrefix) {
-        final List<InlineKeyboardButton> row1 = new ArrayList<>();
-
-        final UserReactionStatistics reactionStatistics = userReactionStatisticsBuilder.build(chatId, predictionId);
-
-        row1.add(buildReactionButton(createReactionMetadata(ReactionType.SUPER, reactionStatistics), firstPrefix,
-                                     predictionId));
-        row1.add(buildReactionButton(createReactionMetadata(ReactionType.FUNNY, reactionStatistics), firstPrefix,
-                                     predictionId));
-        row1.add(buildReactionButton(createReactionMetadata(ReactionType.BAD, reactionStatistics), firstPrefix,
-                                     predictionId));
-
-        return row1;
-    }
+//    public List<InlineKeyboardButton> buildCallbackKeyboardRow(final long chatId,
+//                                                               final long predictionId,
+//                                                               final String firstPrefix) {
+//        final List<InlineKeyboardButton> row1 = new ArrayList<>();
+//
+//        final UserReactionStatistics reactionStatistics = userReactionStatisticsBuilder.build(chatId, predictionId);
+//
+//        row1.add(buildReactionButton(createReactionMetadata(ReactionType.SUPER, reactionStatistics), firstPrefix,
+//                                     predictionId));
+//        row1.add(buildReactionButton(createReactionMetadata(ReactionType.FUNNY, reactionStatistics), firstPrefix,
+//                                     predictionId));
+//        row1.add(buildReactionButton(createReactionMetadata(ReactionType.BAD, reactionStatistics), firstPrefix,
+//                                     predictionId));
+//
+//        return row1;
+//    }
 
     private InlineKeyboardButton buildReactionButton(final ReactionMetadata metadata, final String firstPrefix,
                                                      final long predictionId) {
@@ -134,16 +151,24 @@ public class ReactionButtonBuilder {
     }
 
     private ReactionMetadata createReactionMetadata(final ReactionType type, final UserReactionStatistics statistics) {
-        return switch (type) {
-            case SUPER -> new ReactionMetadata(type,
-                                               statistics.isSuperReactionSelected(), statistics.getSuperReactionCount(),
-                                               CALLBACK_REACTION_SUPER);
-            case FUNNY -> new ReactionMetadata(type,
-                                               statistics.isFunnyReactionSelected(), statistics.getFunnyReactionCount(),
-                                               CALLBACK_REACTION_FUNNY);
-            case BAD -> new ReactionMetadata(type,
-                                             statistics.isBadReactionSelected(), statistics.getBadReactionCount(),
-                                             CALLBACK_REACTION_BAD);
+        final boolean isSelected = switch (type) {
+            case SUPER -> statistics.isSuperReactionSelected();
+            case FUNNY -> statistics.isFunnyReactionSelected();
+            case BAD -> statistics.isBadReactionSelected();
         };
+
+        final int count = switch (type) {
+            case SUPER -> statistics.getSuperReactionCount();
+            case FUNNY -> statistics.getFunnyReactionCount();
+            case BAD -> statistics.getBadReactionCount();
+        };
+
+        final String callbackPrefix = switch (type) {
+            case SUPER -> CALLBACK_REACTION_SUPER;
+            case FUNNY -> CALLBACK_REACTION_FUNNY;
+            case BAD -> CALLBACK_REACTION_BAD;
+        };
+
+        return new ReactionMetadata(type, isSelected, count, callbackPrefix);
     }
 }

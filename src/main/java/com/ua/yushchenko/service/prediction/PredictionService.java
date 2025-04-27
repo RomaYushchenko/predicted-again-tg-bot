@@ -1,5 +1,7 @@
 package com.ua.yushchenko.service.prediction;
 
+import java.util.Optional;
+
 import com.ua.yushchenko.model.Prediction;
 import com.ua.yushchenko.model.User;
 
@@ -12,6 +14,8 @@ import com.ua.yushchenko.model.User;
  * @version 0.1-beta
  */
 public interface PredictionService {
+
+    Optional<Prediction> getPredictionByText(final String predictionText);
 
     /**
      * Generates a quick prediction for a user.

@@ -36,12 +36,12 @@ public class QuickPredictionButtonBuilder {
      * @param firstPrefix  prefix
      * @return {@link InlineKeyboardMarkup} with Quick Prediction buttons
      */
-    public InlineKeyboardMarkup buildKeyboard(final long predictionId, final String firstPrefix) {
+    public InlineKeyboardMarkup buildKeyboard(final long chatId, final long predictionId, final String firstPrefix) {
         final InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
 
         final List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 
-        rowsInline.add(reactionButtonBuilder.buildKeyboardRow(predictionId, firstPrefix));
+        rowsInline.add(reactionButtonBuilder.buildKeyboardRow(chatId, predictionId, firstPrefix));
         rowsInline.add(buildKeyboardRow());
 
         markupInline.setKeyboard(rowsInline);
@@ -62,7 +62,7 @@ public class QuickPredictionButtonBuilder {
 
         final List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 
-        rowsInline.add(reactionButtonBuilder.buildCallbackKeyboardRow(chatId, predictionId, firstPrefix));
+        rowsInline.add(reactionButtonBuilder.buildKeyboardRow(chatId, predictionId, firstPrefix));
         rowsInline.add(buildKeyboardRow());
 
         markupInline.setKeyboard(rowsInline);

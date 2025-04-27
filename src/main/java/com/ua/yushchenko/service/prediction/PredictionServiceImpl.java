@@ -3,6 +3,7 @@ package com.ua.yushchenko.service.prediction;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import com.ua.yushchenko.common.SplitMix64RandomGenerator;
 import com.ua.yushchenko.model.Prediction;
@@ -29,6 +30,11 @@ public class PredictionServiceImpl implements PredictionService {
     private final SplitMix64RandomGenerator randomGenerator;
 
     @Override
+    public Optional<Prediction> getPredictionByText(final String predictionText) {
+        return predictionRepository.findPredictionByText(predictionText);
+    }
+
+    @Override
     public Prediction generateQuickPrediction(long chatId) {
         final String lastPrediction = userService.getLastPrediction(chatId);
         final List<Prediction> allPredictions = predictionRepository.findAll();
@@ -38,7 +44,6 @@ public class PredictionServiceImpl implements PredictionService {
             prediction = allPredictions.get(randomGenerator.nextInt(allPredictions.size()));
         } while (prediction.getText().equals(lastPrediction) && allPredictions.size() > 1);
 
-        userService.saveLastPrediction(chatId, prediction.getText());
         return prediction;
     }
 

@@ -67,7 +67,7 @@ public class NotificationJob implements Job {
             try {
                 messageSender.sendMessage(user.getChatId(),
                                           prediction.getText(),
-                                          reactionButtonBuilder.buildKeyboard(prediction.getId(), DAILY_PREFIX));
+                                          reactionButtonBuilder.buildKeyboard(chatId, prediction.getId(), DAILY_PREFIX));
 
                 user.setLastNotificationTime(now.plusHours(predictionTimeZone));
                 userService.save(user);

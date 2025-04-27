@@ -30,7 +30,7 @@ public class AnotherPredictionCommand extends AbstractCallbackCommand {
         final Prediction prediction = predictionService.generateQuickPrediction(chatId);
 
         messageSender.editMessage(chatId, messageId, prediction.getText(),
-                                  quickPredictionButtonBuilder.buildKeyboard(prediction.getId(), QUICK_PREFIX));
+                                  quickPredictionButtonBuilder.buildKeyboard(chatId, prediction.getId(), QUICK_PREFIX));
     }
 
     @Override

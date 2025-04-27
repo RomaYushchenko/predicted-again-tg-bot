@@ -20,7 +20,7 @@ public interface PredictionService {
      * @param chatId ID of the user's chat
      * @return generated quick prediction text
      */
-    String generateQuickPrediction(long chatId);
+    Prediction generateQuickPrediction(long chatId);
 
     /**
      * Generates a daily prediction for a user.

@@ -18,6 +18,7 @@ import static com.ua.yushchenko.command.CommandConstants.COMMAND_START;
 
 import java.util.Map;
 
+import com.ua.yushchenko.builder.ui.prediction.QuickPredictionButtonBuilder;
 import com.ua.yushchenko.builder.ui.reaction.ReactionButtonBuilder;
 import com.ua.yushchenko.model.ReactionType;
 import com.ua.yushchenko.service.notification.NotificationSchedulerService;
@@ -51,6 +52,7 @@ public class CommandFactory {
     private final UserService userService;
     private final ReactionService reactionService;
     private final ReactionButtonBuilder reactionButtonBuilder;
+    private final QuickPredictionButtonBuilder quickPredictionButtonBuilder;
 
     private static final Logger log = LoggerFactory.getLogger(CommandFactory.class);
 
@@ -73,7 +75,8 @@ public class CommandFactory {
                           final BotStateManager stateManager,
                           final UserService userService,
                           final ReactionService reactionService,
-                          final ReactionButtonBuilder reactionButtonBuilder) {
+                          final ReactionButtonBuilder reactionButtonBuilder,
+                          final QuickPredictionButtonBuilder quickPredictionButtonBuilder) {
         this.messageSender = messageSender;
         this.predictionService = predictionService;
         this.notificationSchedulerService = notificationSchedulerService;
@@ -81,6 +84,7 @@ public class CommandFactory {
         this.userService = userService;
         this.reactionService = reactionService;
         this.reactionButtonBuilder = reactionButtonBuilder;
+        this.quickPredictionButtonBuilder = quickPredictionButtonBuilder;
     }
 
     /**
@@ -108,7 +112,7 @@ public class CommandFactory {
 
         // Спочатку перевіряємо команди з емодзі
         if (text.equals(COMMAND_QUICK_PREDICTION)) {
-            return new QuickPredictionCommand(messageSender, chatId, predictionService);
+            return new QuickPredictionCommand(messageSender, chatId, predictionService, quickPredictionButtonBuilder);
         }
         if (text.equals(COMMAND_DAILY_PREDICTION)) {
             return new DailyPredictionCommand(messageSender, chatId, predictionService);
@@ -121,7 +125,7 @@ public class CommandFactory {
         return switch (text) {
             case COMMAND_START -> new StartCommand(messageSender, chatId, notificationSchedulerService, userService);
             case COMMAND_SETTINGS -> new SettingsCommand(messageSender, chatId, userService, stateManager);
-            case COMMAND_QUICK -> new QuickPredictionCommand(messageSender, chatId, predictionService);
+            case COMMAND_QUICK -> new QuickPredictionCommand(messageSender, chatId, predictionService, quickPredictionButtonBuilder);
             case COMMAND_DAILY -> new DailyPredictionCommand(messageSender, chatId, predictionService);
             default -> new UnknownCommand(messageSender, chatId);
         };
@@ -148,16 +152,17 @@ public class CommandFactory {
 
         if (reactionType != null) {
             final long callbackPredictionId = extractPredictionId(data);
+            final String prefix = extractPrefix(data);
 
             return new ReactionCommand(messageSender, chatId, messageId, callbackPredictionId, reactionType,
-                                       reactionService, reactionButtonBuilder);
+                                       reactionService, reactionButtonBuilder, quickPredictionButtonBuilder, prefix);
         }
 
         return switch (data) {
             case CALLBACK_SETTINGS -> new SettingsCommand(messageSender, chatId, userService, stateManager);
             case CALLBACK_TOGGLE_NOTIFICATIONS -> new ToggleNotificationsCommand(messageSender, chatId, userService);
             case CALLBACK_CHANGE_TIME -> new ChangeNotificationTimeCommand(messageSender, chatId, stateManager);
-            case CALLBACK_ANOTHER_PREDICTION -> new AnotherPredictionCommand(messageSender, chatId, messageId, predictionService);
+            case CALLBACK_ANOTHER_PREDICTION -> new AnotherPredictionCommand(messageSender, chatId, messageId, predictionService, quickPredictionButtonBuilder);
             case CALLBACK_ANOTHER_DAILY -> new AnotherDailyPredictionCommand(messageSender, chatId, messageId, predictionService);
             default -> new UnknownCommand(messageSender, chatId);
         };
@@ -175,5 +180,10 @@ public class CommandFactory {
     private long extractPredictionId(String data) {
         final String[] parts = data.split("_");
         return Long.parseLong(parts[parts.length - 1]);
+    }
+
+    private String extractPrefix(String data) {
+        final String[] parts = data.split("_");
+        return parts[0];
     }
 } 

@@ -33,25 +33,42 @@ public class ReactionButtonBuilder {
     private final UserReactionStatisticsBuilder userReactionStatisticsBuilder;
 
     /**
-     * Build reaction buttons
+     * Build reaction buttons Keyboard
      *
      * @param predictionId ID of prediction
+     * @param firstPrefix  prefix
      * @return {@link InlineKeyboardMarkup} with reaction buttons
      */
-    public InlineKeyboardMarkup build(final long predictionId) {
+    public InlineKeyboardMarkup buildKeyboard(final long predictionId, final String firstPrefix) {
         final InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
 
         final List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        final List<InlineKeyboardButton> row1 = new ArrayList<>();
 
-        row1.add(buttonBuilder.button(ReactionType.SUPER.getEmoji(), CALLBACK_REACTION_SUPER + predictionId));
-        row1.add(buttonBuilder.button(ReactionType.FUNNY.getEmoji(), CALLBACK_REACTION_FUNNY + predictionId));
-        row1.add(buttonBuilder.button(ReactionType.BAD.getEmoji(), CALLBACK_REACTION_BAD + predictionId));
+        rowsInline.add(buildKeyboardRow(predictionId, firstPrefix));
 
-        rowsInline.add(row1);
         markupInline.setKeyboard(rowsInline);
 
         return markupInline;
+    }
+
+    /**
+     * Build reaction buttons row
+     *
+     * @param predictionId ID of prediction
+     * @param firstPrefix  prefix
+     * @return List of {@link InlineKeyboardButton} with reaction buttons
+     */
+    public List<InlineKeyboardButton> buildKeyboardRow(final long predictionId, final String firstPrefix) {
+        final List<InlineKeyboardButton> row1 = new ArrayList<>();
+
+        row1.add(buttonBuilder.button(ReactionType.SUPER.getEmoji(),
+                                      firstPrefix + CALLBACK_REACTION_SUPER + predictionId));
+        row1.add(buttonBuilder.button(ReactionType.FUNNY.getEmoji(),
+                                      firstPrefix + CALLBACK_REACTION_FUNNY + predictionId));
+        row1.add(buttonBuilder.button(ReactionType.BAD.getEmoji(),
+                                      firstPrefix + CALLBACK_REACTION_BAD + predictionId));
+
+        return row1;
     }
 
     /**
@@ -59,27 +76,49 @@ public class ReactionButtonBuilder {
      *
      * @param chatId       ID of chat
      * @param predictionId ID of prediction
+     * @param firstPrefix  prefix
      * @return {@link InlineKeyboardMarkup} with reaction buttons
      */
-    public InlineKeyboardMarkup buildCallback(final long chatId,
-                                              final long predictionId) {
-        final UserReactionStatistics reactionStatistics = userReactionStatisticsBuilder.build(chatId, predictionId);
-
+    public InlineKeyboardMarkup buildCallbackKeyboard(final long chatId,
+                                                      final long predictionId,
+                                                      final String firstPrefix) {
         final InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
 
         final List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        final List<InlineKeyboardButton> row1 = new ArrayList<>();
 
-        row1.add(buildReactionButton(createReactionMetadata(ReactionType.SUPER, reactionStatistics), predictionId));
-        row1.add(buildReactionButton(createReactionMetadata(ReactionType.FUNNY, reactionStatistics), predictionId));
-        row1.add(buildReactionButton(createReactionMetadata(ReactionType.BAD, reactionStatistics), predictionId));
+        rowsInline.add(buildCallbackKeyboardRow(chatId, predictionId, firstPrefix));
 
-        rowsInline.add(row1);
         markupInline.setKeyboard(rowsInline);
         return markupInline;
     }
 
-    private InlineKeyboardButton buildReactionButton(final ReactionMetadata metadata, final long predictionId) {
+    /**
+     * Build reaction buttons row  wth callback reactions
+     *
+     * @param chatId       ID of chat
+     * @param predictionId ID of prediction
+     * @param firstPrefix  prefix
+     * @return List of {@link InlineKeyboardButton} with reaction buttons
+     */
+    public List<InlineKeyboardButton> buildCallbackKeyboardRow(final long chatId,
+                                                               final long predictionId,
+                                                               final String firstPrefix) {
+        final List<InlineKeyboardButton> row1 = new ArrayList<>();
+
+        final UserReactionStatistics reactionStatistics = userReactionStatisticsBuilder.build(chatId, predictionId);
+
+        row1.add(buildReactionButton(createReactionMetadata(ReactionType.SUPER, reactionStatistics), firstPrefix,
+                                     predictionId));
+        row1.add(buildReactionButton(createReactionMetadata(ReactionType.FUNNY, reactionStatistics), firstPrefix,
+                                     predictionId));
+        row1.add(buildReactionButton(createReactionMetadata(ReactionType.BAD, reactionStatistics), firstPrefix,
+                                     predictionId));
+
+        return row1;
+    }
+
+    private InlineKeyboardButton buildReactionButton(final ReactionMetadata metadata, final String firstPrefix,
+                                                     final long predictionId) {
         final StringBuilder buttonText = new StringBuilder();
 
         if (metadata.isSelected()) {
@@ -91,7 +130,7 @@ public class ReactionButtonBuilder {
                   .append(metadata.count())
                   .append(")");
 
-        return buttonBuilder.button(buttonText.toString(), metadata.callbackPrefix() + predictionId);
+        return buttonBuilder.button(buttonText.toString(), firstPrefix + metadata.callbackPrefix() + predictionId);
     }
 
     private ReactionMetadata createReactionMetadata(final ReactionType type, final UserReactionStatistics statistics) {

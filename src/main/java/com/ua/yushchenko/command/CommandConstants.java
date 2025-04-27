@@ -36,6 +36,9 @@ public final class CommandConstants {
     public static final String CALLBACK_REACTION_FUNNY = "reaction_funny_";
     public static final String CALLBACK_REACTION_BAD = "reaction_bad_";
 
+    public static final String QUICK_PREFIX = "q_";
+    public static final String DAILY_PREFIX = "d_";
+
     /**
      * Button text constants used for keyboard buttons.
      */

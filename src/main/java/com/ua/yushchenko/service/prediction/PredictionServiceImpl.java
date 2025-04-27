@@ -29,15 +29,16 @@ public class PredictionServiceImpl implements PredictionService {
     private final SplitMix64RandomGenerator randomGenerator;
 
     @Override
-    public String generateQuickPrediction(long chatId) {
+    public Prediction generateQuickPrediction(long chatId) {
         final String lastPrediction = userService.getLastPrediction(chatId);
+        final List<Prediction> allPredictions = predictionRepository.findAll();
 
-        String prediction;
+        Prediction prediction;
         do {
-            prediction = predictions.get(randomGenerator.nextInt(predictions.size())).getText();
-        } while (prediction.equals(lastPrediction) && predictions.size() > 1);
+            prediction = allPredictions.get(randomGenerator.nextInt(allPredictions.size()));
+        } while (prediction.getText().equals(lastPrediction) && allPredictions.size() > 1);
 
-        userService.saveLastPrediction(chatId, prediction);
+        userService.saveLastPrediction(chatId, prediction.getText());
         return prediction;
     }
 
@@ -66,6 +67,7 @@ public class PredictionServiceImpl implements PredictionService {
             prediction = allPredictions.get(randomGenerator.nextInt(allPredictions.size()));
         } while (top30PredictionOfUser.contains(prediction.getText()) && top30PredictionOfUser.size() > 1);
 
+        userService.saveLastPrediction(chatId, prediction.getText());
         return prediction;
     }
 

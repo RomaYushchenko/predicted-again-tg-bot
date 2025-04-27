@@ -1,5 +1,7 @@
 package com.ua.yushchenko.jobs;
 
+import static com.ua.yushchenko.command.CommandConstants.DAILY_PREFIX;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -65,7 +67,7 @@ public class NotificationJob implements Job {
             try {
                 messageSender.sendMessage(user.getChatId(),
                                           prediction.getText(),
-                                          reactionButtonBuilder.build(prediction.getId()));
+                                          reactionButtonBuilder.buildKeyboard(prediction.getId(), DAILY_PREFIX));
 
                 user.setLastNotificationTime(now.plusHours(predictionTimeZone));
                 userService.save(user);

@@ -3,8 +3,6 @@ package com.ua.yushchenko.command;
 import static com.ua.yushchenko.command.CommandConstants.DAILY_PREFIX;
 import static com.ua.yushchenko.command.CommandConstants.QUICK_PREFIX;
 
-import java.util.Objects;
-
 import com.ua.yushchenko.builder.ui.prediction.QuickPredictionButtonBuilder;
 import com.ua.yushchenko.builder.ui.reaction.ReactionButtonBuilder;
 import com.ua.yushchenko.model.ReactionType;
@@ -60,7 +58,7 @@ public class ReactionCommand extends AbstractCallbackCommand {
 
         if (DAILY_PREFIX.contains(firstPrefix)) {
             messageSender.editMessage(chatId, messageId, messageText,
-                                      reactionButtonBuilder.buildCallbackKeyboard(chatId, predictionId, DAILY_PREFIX));
+                                      reactionButtonBuilder.buildKeyboard(chatId, predictionId, DAILY_PREFIX));
 
             return;
         }

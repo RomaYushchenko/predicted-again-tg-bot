@@ -1,11 +1,8 @@
 package com.ua.yushchenko.command;
 
-import static com.ua.yushchenko.command.CommandConstants.BUTTON_ANOTHER_PREDICTION;
 import static com.ua.yushchenko.command.CommandConstants.BUTTON_CHANGE_TIME;
 import static com.ua.yushchenko.command.CommandConstants.BUTTON_DISABLE_NOTIFICATIONS;
 import static com.ua.yushchenko.command.CommandConstants.BUTTON_ENABLE_NOTIFICATIONS;
-import static com.ua.yushchenko.command.CommandConstants.CALLBACK_ANOTHER_DAILY;
-import static com.ua.yushchenko.command.CommandConstants.CALLBACK_ANOTHER_PREDICTION;
 import static com.ua.yushchenko.command.CommandConstants.CALLBACK_CHANGE_TIME;
 import static com.ua.yushchenko.command.CommandConstants.CALLBACK_TOGGLE_NOTIFICATIONS;
 import static com.ua.yushchenko.command.CommandConstants.COMMAND_DAILY_PREDICTION;
@@ -47,40 +44,6 @@ public abstract class AbstractMessageCommand extends AbstractCommand {
 
         keyboardMarkup.setKeyboard(keyboard);
         return keyboardMarkup;
-    }
-
-    protected InlineKeyboardMarkup createPredictionInlineKeyboard() {
-        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline = new ArrayList<>();
-
-        InlineKeyboardButton anotherButton = new InlineKeyboardButton();
-        anotherButton.setText(BUTTON_ANOTHER_PREDICTION);
-        anotherButton.setCallbackData(CALLBACK_ANOTHER_PREDICTION);
-
-        rowInline.add(anotherButton);
-
-        rowsInline.add(rowInline);
-        markupInline.setKeyboard(rowsInline);
-
-        return markupInline;
-    }
-
-    protected InlineKeyboardMarkup createDailyPredictionInlineKeyboard() {
-        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline = new ArrayList<>();
-
-        InlineKeyboardButton anotherButton = new InlineKeyboardButton();
-        anotherButton.setText(BUTTON_ANOTHER_PREDICTION);
-        anotherButton.setCallbackData(CALLBACK_ANOTHER_DAILY);
-
-        rowInline.add(anotherButton);
-
-        rowsInline.add(rowInline);
-        markupInline.setKeyboard(rowsInline);
-
-        return markupInline;
     }
 
     protected InlineKeyboardMarkup createSettingsInlineKeyboard(boolean notificationsEnabled) {

@@ -50,7 +50,7 @@ public class QuickPredictionCommand extends AbstractMessageCommand {
         final Prediction prediction = predictionService.generateQuickPrediction(chatId);
 
         messageSender.sendMessage(chatId, prediction.getText(),
-                                  quickPredictionButtonBuilder.buildKeyboard(prediction.getId(), QUICK_PREFIX));
+                                  quickPredictionButtonBuilder.buildKeyboard(chatId, prediction.getId(), QUICK_PREFIX));
     }
 
     @Override

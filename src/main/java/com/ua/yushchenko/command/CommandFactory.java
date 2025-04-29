@@ -20,6 +20,7 @@ import java.util.Map;
 import com.ua.yushchenko.builder.ui.prediction.DailyPredictionButtonBuilder;
 import com.ua.yushchenko.builder.ui.prediction.QuickPredictionButtonBuilder;
 import com.ua.yushchenko.builder.ui.reaction.ReactionButtonBuilder;
+import com.ua.yushchenko.builder.ui.settings.SettingButtonBuilder;
 import com.ua.yushchenko.model.ReactionType;
 import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.prediction.PredictionService;
@@ -54,6 +55,7 @@ public class CommandFactory {
     private final ReactionButtonBuilder reactionButtonBuilder;
     private final QuickPredictionButtonBuilder quickPredictionButtonBuilder;
     private final DailyPredictionButtonBuilder dailyPredictionButtonBuilder;
+    private final SettingButtonBuilder settingButtonBuilder;
 
     private static final Logger log = LoggerFactory.getLogger(CommandFactory.class);
 
@@ -78,7 +80,8 @@ public class CommandFactory {
                           final ReactionService reactionService,
                           final ReactionButtonBuilder reactionButtonBuilder,
                           final QuickPredictionButtonBuilder quickPredictionButtonBuilder,
-                          final DailyPredictionButtonBuilder dailyPredictionButtonBuilder) {
+                          final DailyPredictionButtonBuilder dailyPredictionButtonBuilder,
+                          final SettingButtonBuilder settingButtonBuilder) {
         this.messageSender = messageSender;
         this.predictionService = predictionService;
         this.notificationSchedulerService = notificationSchedulerService;
@@ -88,6 +91,7 @@ public class CommandFactory {
         this.reactionButtonBuilder = reactionButtonBuilder;
         this.quickPredictionButtonBuilder = quickPredictionButtonBuilder;
         this.dailyPredictionButtonBuilder = dailyPredictionButtonBuilder;
+        this.settingButtonBuilder = settingButtonBuilder;
     }
 
     /**
@@ -110,7 +114,7 @@ public class CommandFactory {
         // Check if user is awaiting time input
         if (stateManager.isAwaitingTime(chatId)) {
             return new TimeMessageCommand(messageSender, message, userService,
-                                          stateManager, notificationSchedulerService);
+                                          stateManager, notificationSchedulerService, settingButtonBuilder);
         }
 
         // Спочатку перевіряємо команди з емодзі
@@ -121,13 +125,13 @@ public class CommandFactory {
             return new DailyPredictionCommand(messageSender, chatId, predictionService, userService, dailyPredictionButtonBuilder);
         }
         if (text.equals(COMMAND_SETTINGS_BUTTON)) {
-            return new SettingsCommand(messageSender, chatId, userService, stateManager);
+            return new SettingsCommand(messageSender, chatId, userService, stateManager, settingButtonBuilder);
         }
 
         // Потім перевіряємо звичайні команди
         return switch (text) {
             case COMMAND_START -> new StartCommand(messageSender, chatId, notificationSchedulerService, userService);
-            case COMMAND_SETTINGS -> new SettingsCommand(messageSender, chatId, userService, stateManager);
+            case COMMAND_SETTINGS -> new SettingsCommand(messageSender, chatId, userService, stateManager, settingButtonBuilder);
             case COMMAND_QUICK -> new QuickPredictionCommand(messageSender, chatId, predictionService, quickPredictionButtonBuilder);
             case COMMAND_DAILY -> new DailyPredictionCommand(messageSender, chatId, predictionService, userService, dailyPredictionButtonBuilder);
             default -> new UnknownCommand(messageSender, chatId);
@@ -162,9 +166,9 @@ public class CommandFactory {
         }
 
         return switch (data) {
-            case CALLBACK_SETTINGS -> new SettingsCommand(messageSender, chatId, userService, stateManager);
-            case CALLBACK_TOGGLE_NOTIFICATIONS -> new ToggleNotificationsCommand(messageSender, chatId, userService);
-            case CALLBACK_CHANGE_TIME -> new ChangeNotificationTimeCommand(messageSender, chatId, stateManager);
+            case CALLBACK_SETTINGS -> new SettingsCommand(messageSender, chatId, userService, stateManager, settingButtonBuilder);
+            case CALLBACK_TOGGLE_NOTIFICATIONS -> new ToggleNotificationsCommand(messageSender, chatId, userService, settingButtonBuilder);
+            case CALLBACK_CHANGE_TIME -> new ChangeNotificationTimeCommand(messageSender, chatId, stateManager, settingButtonBuilder);
             case CALLBACK_ANOTHER_PREDICTION -> new AnotherPredictionCommand(messageSender, chatId, messageId, predictionService, quickPredictionButtonBuilder);
             default -> new UnknownCommand(messageSender, chatId);
         };

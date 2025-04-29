@@ -41,9 +41,9 @@ public final class CommandConstants {
     /**
      * Button text constants used for keyboard buttons.
      */
-    public static final String BUTTON_BACK_TO_MENU = "🔙 Назад у меню";
     public static final String BUTTON_ANOTHER_PREDICTION = "🎲 Ще одне передбачення";
     public static final String BUTTON_CHANGE_TIME = "⏰ Змінити час сповіщень";
     public static final String BUTTON_ENABLE_NOTIFICATIONS = "🔔 Увімкнути сповіщення";
     public static final String BUTTON_DISABLE_NOTIFICATIONS = "🔕 Вимкнути сповіщення";
-} 
+    public static final String BUTTON_SETTINGS = "⚙️ До налаштувань";
+}

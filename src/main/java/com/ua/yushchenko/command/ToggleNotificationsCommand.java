@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
+import com.ua.yushchenko.builder.ui.settings.SettingButtonBuilder;
 import com.ua.yushchenko.service.telegram.MessageSender;
 import com.ua.yushchenko.service.user.UserService;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -14,13 +15,16 @@ public class ToggleNotificationsCommand extends AbstractMessageCommand {
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     private final UserService userService;
+    private final SettingButtonBuilder settingButtonBuilder;
 
     public ToggleNotificationsCommand(final MessageSender messageSender,
                                       final long chatId,
-                                      final UserService userService) {
+                                      final UserService userService,
+                                      final SettingButtonBuilder settingButtonBuilder) {
         super(messageSender, chatId);
 
         this.userService = userService;
+        this.settingButtonBuilder = settingButtonBuilder;
     }
 
     @Override
@@ -38,7 +42,7 @@ public class ToggleNotificationsCommand extends AbstractMessageCommand {
                                        .orElse("⚠️ Час сповіщень: Не встановлено"));
 
         messageSender.editMessage(chatId, update.getCallbackQuery().getMessage().getMessageId(),
-                                  message.toString(), createSettingsInlineKeyboard(wasEnabled));
+                                  message.toString(), settingButtonBuilder.buildKeyboard(wasEnabled));
     }
 
     @Override

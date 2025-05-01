@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+import com.ua.yushchenko.builder.ui.main.MainMenuButtonBuilder;
 import com.ua.yushchenko.builder.ui.settings.SettingButtonBuilder;
 import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.telegram.MessageSender;
@@ -24,25 +25,28 @@ public class TimeMessageCommand extends AbstractMessageCommand {
     private final NotificationSchedulerService notificationSchedulerService;
     private final UserService userService;
     private final SettingButtonBuilder settingButtonBuilder;
+    private final MainMenuButtonBuilder mainMenuButtonBuilder;
 
     public TimeMessageCommand(final MessageSender messageSender,
                               final Message message,
                               final UserService userService,
                               final BotStateManager stateManager,
                               final NotificationSchedulerService notificationSchedulerService,
-                              final SettingButtonBuilder settingButtonBuilder) {
+                              final SettingButtonBuilder settingButtonBuilder,
+                              final MainMenuButtonBuilder mainMenuButtonBuilder) {
         super(messageSender, message.getChatId());
         this.message = message;
         this.stateManager = stateManager;
         this.notificationSchedulerService = notificationSchedulerService;
         this.userService = userService;
         this.settingButtonBuilder = settingButtonBuilder;
+        this.mainMenuButtonBuilder = mainMenuButtonBuilder;
     }
 
     @Override
     public void execute(Update update) throws TelegramApiException {
         if (!stateManager.isAwaitingTime(chatId)) {
-            showMainMenu();
+            messageSender.sendMessage(chatId, "Головне меню:", mainMenuButtonBuilder.build());
             return;
         }
 

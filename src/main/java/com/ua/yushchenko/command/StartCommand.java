@@ -2,6 +2,7 @@ package com.ua.yushchenko.command;
 
 import java.time.LocalDateTime;
 
+import com.ua.yushchenko.builder.ui.main.MainMenuButtonBuilder;
 import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.telegram.MessageSender;
 import com.ua.yushchenko.service.user.UserService;
@@ -19,14 +20,17 @@ public class StartCommand extends AbstractMessageCommand {
 
     private final NotificationSchedulerService notificationSchedulerService;
     private final UserService userService;
+    private final MainMenuButtonBuilder mainMenuButtonBuilder;
 
     protected StartCommand(final MessageSender messageSender,
                            final long chatId,
                            final NotificationSchedulerService notificationSchedulerService,
-                           final UserService userService) {
+                           final UserService userService,
+                           final MainMenuButtonBuilder mainMenuButtonBuilder) {
         super(messageSender, chatId);
         this.notificationSchedulerService = notificationSchedulerService;
         this.userService = userService;
+        this.mainMenuButtonBuilder = mainMenuButtonBuilder;
     }
 
     @Override
@@ -51,7 +55,7 @@ public class StartCommand extends AbstractMessageCommand {
                 
                 Оберіть опцію з меню нижче:""";
 
-        messageSender.sendMessage(chatId, welcomeMessage, createMainMenuKeyboard());
+        messageSender.sendMessage(chatId, welcomeMessage, mainMenuButtonBuilder.build());
 
     }
 

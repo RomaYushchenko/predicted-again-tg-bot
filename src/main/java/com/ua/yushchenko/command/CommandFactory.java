@@ -17,6 +17,7 @@ import static com.ua.yushchenko.command.CommandConstants.COMMAND_START;
 
 import java.util.Map;
 
+import com.ua.yushchenko.builder.ui.main.MainMenuButtonBuilder;
 import com.ua.yushchenko.builder.ui.prediction.DailyPredictionButtonBuilder;
 import com.ua.yushchenko.builder.ui.prediction.QuickPredictionButtonBuilder;
 import com.ua.yushchenko.builder.ui.reaction.ReactionButtonBuilder;
@@ -56,6 +57,7 @@ public class CommandFactory {
     private final QuickPredictionButtonBuilder quickPredictionButtonBuilder;
     private final DailyPredictionButtonBuilder dailyPredictionButtonBuilder;
     private final SettingButtonBuilder settingButtonBuilder;
+    private final MainMenuButtonBuilder mainMenuButtonBuilder;
 
     private static final Logger log = LoggerFactory.getLogger(CommandFactory.class);
 
@@ -81,7 +83,8 @@ public class CommandFactory {
                           final ReactionButtonBuilder reactionButtonBuilder,
                           final QuickPredictionButtonBuilder quickPredictionButtonBuilder,
                           final DailyPredictionButtonBuilder dailyPredictionButtonBuilder,
-                          final SettingButtonBuilder settingButtonBuilder) {
+                          final SettingButtonBuilder settingButtonBuilder,
+                          final MainMenuButtonBuilder mainMenuButtonBuilder) {
         this.messageSender = messageSender;
         this.predictionService = predictionService;
         this.notificationSchedulerService = notificationSchedulerService;
@@ -92,6 +95,7 @@ public class CommandFactory {
         this.quickPredictionButtonBuilder = quickPredictionButtonBuilder;
         this.dailyPredictionButtonBuilder = dailyPredictionButtonBuilder;
         this.settingButtonBuilder = settingButtonBuilder;
+        this.mainMenuButtonBuilder = mainMenuButtonBuilder;
     }
 
     /**
@@ -114,7 +118,8 @@ public class CommandFactory {
         // Check if user is awaiting time input
         if (stateManager.isAwaitingTime(chatId)) {
             return new TimeMessageCommand(messageSender, message, userService,
-                                          stateManager, notificationSchedulerService, settingButtonBuilder);
+                                          stateManager, notificationSchedulerService, settingButtonBuilder,
+                                          mainMenuButtonBuilder);
         }
 
         // Спочатку перевіряємо команди з емодзі
@@ -130,11 +135,11 @@ public class CommandFactory {
 
         // Потім перевіряємо звичайні команди
         return switch (text) {
-            case COMMAND_START -> new StartCommand(messageSender, chatId, notificationSchedulerService, userService);
+            case COMMAND_START -> new StartCommand(messageSender, chatId, notificationSchedulerService, userService, mainMenuButtonBuilder);
             case COMMAND_SETTINGS -> new SettingsCommand(messageSender, chatId, userService, stateManager, settingButtonBuilder);
             case COMMAND_QUICK -> new QuickPredictionCommand(messageSender, chatId, predictionService, quickPredictionButtonBuilder);
             case COMMAND_DAILY -> new DailyPredictionCommand(messageSender, chatId, predictionService, userService, dailyPredictionButtonBuilder);
-            default -> new UnknownCommand(messageSender, chatId);
+            default -> new UnknownCommand(messageSender, chatId, mainMenuButtonBuilder);
         };
     }
 
@@ -170,7 +175,7 @@ public class CommandFactory {
             case CALLBACK_TOGGLE_NOTIFICATIONS -> new ToggleNotificationsCommand(messageSender, chatId, userService, settingButtonBuilder);
             case CALLBACK_CHANGE_TIME -> new ChangeNotificationTimeCommand(messageSender, chatId, stateManager, settingButtonBuilder);
             case CALLBACK_ANOTHER_PREDICTION -> new AnotherPredictionCommand(messageSender, chatId, messageId, predictionService, quickPredictionButtonBuilder);
-            default -> new UnknownCommand(messageSender, chatId);
+            default -> new UnknownCommand(messageSender, chatId, mainMenuButtonBuilder);
         };
     }
 

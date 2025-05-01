@@ -1,6 +1,7 @@
 package com.ua.yushchenko.config;
 
 import com.ua.yushchenko.bot.TelegramBot;
+import com.ua.yushchenko.builder.ui.main.MainMenuButtonBuilder;
 import com.ua.yushchenko.builder.ui.prediction.DailyPredictionButtonBuilder;
 import com.ua.yushchenko.builder.ui.prediction.QuickPredictionButtonBuilder;
 import com.ua.yushchenko.builder.ui.reaction.ReactionButtonBuilder;
@@ -111,10 +112,12 @@ public class BotConfiguration {
                                          final ReactionButtonBuilder reactionButtonBuilder,
                                          final QuickPredictionButtonBuilder quickPredictionButtonBuilder,
                                          final DailyPredictionButtonBuilder dailyPredictionButtonBuilder,
-                                         final SettingButtonBuilder settingButtonBuilder) {
+                                         final SettingButtonBuilder settingButtonBuilder,
+                                         final MainMenuButtonBuilder mainMenuButtonBuilder) {
         return new CommandFactory(messageSender, predictionService, notificationSchedulerService, stateManager,
                                   userService, reactionService, reactionButtonBuilder, quickPredictionButtonBuilder,
-                                  dailyPredictionButtonBuilder, settingButtonBuilder);
+                                  dailyPredictionButtonBuilder, settingButtonBuilder,
+                                  mainMenuButtonBuilder);
     }
 
     /**

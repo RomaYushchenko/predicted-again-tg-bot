@@ -11,6 +11,7 @@ import com.ua.yushchenko.common.SplitMix64RandomGenerator;
 import com.ua.yushchenko.repository.PredictionRepository;
 import com.ua.yushchenko.repository.UserPredictionRepository;
 import com.ua.yushchenko.repository.UserRepository;
+import com.ua.yushchenko.service.mainmenubutton.MainMenuButtonService;
 import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.prediction.PredictionService;
 import com.ua.yushchenko.service.prediction.PredictionServiceImpl;
@@ -113,11 +114,12 @@ public class BotConfiguration {
                                          final QuickPredictionButtonBuilder quickPredictionButtonBuilder,
                                          final DailyPredictionButtonBuilder dailyPredictionButtonBuilder,
                                          final SettingButtonBuilder settingButtonBuilder,
-                                         final MainMenuButtonBuilder mainMenuButtonBuilder) {
+                                         final MainMenuButtonBuilder mainMenuButtonBuilder,
+                                         final MainMenuButtonService mainMenuButtonService) {
         return new CommandFactory(messageSender, predictionService, notificationSchedulerService, stateManager,
                                   userService, reactionService, reactionButtonBuilder, quickPredictionButtonBuilder,
                                   dailyPredictionButtonBuilder, settingButtonBuilder,
-                                  mainMenuButtonBuilder);
+                                  mainMenuButtonBuilder, mainMenuButtonService);
     }
 
     /**

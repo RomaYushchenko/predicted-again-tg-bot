@@ -23,6 +23,7 @@ import com.ua.yushchenko.builder.ui.prediction.QuickPredictionButtonBuilder;
 import com.ua.yushchenko.builder.ui.reaction.ReactionButtonBuilder;
 import com.ua.yushchenko.builder.ui.settings.SettingButtonBuilder;
 import com.ua.yushchenko.model.ReactionType;
+import com.ua.yushchenko.service.mainmenubutton.MainMenuButtonService;
 import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.prediction.PredictionService;
 import com.ua.yushchenko.service.reaction.ReactionService;
@@ -58,6 +59,7 @@ public class CommandFactory {
     private final DailyPredictionButtonBuilder dailyPredictionButtonBuilder;
     private final SettingButtonBuilder settingButtonBuilder;
     private final MainMenuButtonBuilder mainMenuButtonBuilder;
+    private final MainMenuButtonService mainMenuButtonService;
 
     private static final Logger log = LoggerFactory.getLogger(CommandFactory.class);
 
@@ -84,7 +86,8 @@ public class CommandFactory {
                           final QuickPredictionButtonBuilder quickPredictionButtonBuilder,
                           final DailyPredictionButtonBuilder dailyPredictionButtonBuilder,
                           final SettingButtonBuilder settingButtonBuilder,
-                          final MainMenuButtonBuilder mainMenuButtonBuilder) {
+                          final MainMenuButtonBuilder mainMenuButtonBuilder,
+                          final MainMenuButtonService mainMenuButtonService) {
         this.messageSender = messageSender;
         this.predictionService = predictionService;
         this.notificationSchedulerService = notificationSchedulerService;
@@ -96,6 +99,7 @@ public class CommandFactory {
         this.dailyPredictionButtonBuilder = dailyPredictionButtonBuilder;
         this.settingButtonBuilder = settingButtonBuilder;
         this.mainMenuButtonBuilder = mainMenuButtonBuilder;
+        this.mainMenuButtonService = mainMenuButtonService;
     }
 
     /**
@@ -119,7 +123,7 @@ public class CommandFactory {
         if (stateManager.isAwaitingTime(chatId)) {
             return new TimeMessageCommand(messageSender, message, userService,
                                           stateManager, notificationSchedulerService, settingButtonBuilder,
-                                          mainMenuButtonBuilder);
+                                          mainMenuButtonBuilder, mainMenuButtonService);
         }
 
         // Спочатку перевіряємо команди з емодзі
@@ -135,11 +139,11 @@ public class CommandFactory {
 
         // Потім перевіряємо звичайні команди
         return switch (text) {
-            case COMMAND_START -> new StartCommand(messageSender, chatId, notificationSchedulerService, userService, mainMenuButtonBuilder);
+            case COMMAND_START -> new StartCommand(messageSender, chatId, notificationSchedulerService, userService, mainMenuButtonBuilder, mainMenuButtonService);
             case COMMAND_SETTINGS -> new SettingsCommand(messageSender, chatId, userService, stateManager, settingButtonBuilder);
             case COMMAND_QUICK -> new QuickPredictionCommand(messageSender, chatId, predictionService, quickPredictionButtonBuilder);
             case COMMAND_DAILY -> new DailyPredictionCommand(messageSender, chatId, predictionService, userService, dailyPredictionButtonBuilder);
-            default -> new UnknownCommand(messageSender, chatId, mainMenuButtonBuilder);
+            default -> new UnknownCommand(messageSender, chatId, mainMenuButtonBuilder, mainMenuButtonService);
         };
     }
 
@@ -175,7 +179,7 @@ public class CommandFactory {
             case CALLBACK_TOGGLE_NOTIFICATIONS -> new ToggleNotificationsCommand(messageSender, chatId, userService, settingButtonBuilder);
             case CALLBACK_CHANGE_TIME -> new ChangeNotificationTimeCommand(messageSender, chatId, stateManager, settingButtonBuilder);
             case CALLBACK_ANOTHER_PREDICTION -> new AnotherPredictionCommand(messageSender, chatId, messageId, predictionService, quickPredictionButtonBuilder);
-            default -> new UnknownCommand(messageSender, chatId, mainMenuButtonBuilder);
+            default -> new UnknownCommand(messageSender, chatId, mainMenuButtonBuilder, mainMenuButtonService);
         };
     }
 

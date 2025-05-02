@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="012" author="yushchenko">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="main_menu_buttons"/></not>
+        </preConditions>
+
+        <createTable tableName="main_menu_buttons">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="button_label" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="command" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_released" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sort_order" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="row_number" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_added" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="012.01" author="yushchenko">
+        <sql>CREATE EXTENSION IF NOT EXISTS "pgcrypto";</sql>
+    </changeSet>
+
+    <changeSet id="012.02" author="yushchenko">
+        <insert tableName="main_menu_buttons">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="button_label" value="🎲 Швидке передбачення"/>
+            <column name="command" value="/quick_prediction"/>
+            <column name="is_released" valueBoolean="true"/>
+            <column name="sort_order" value="1"/>
+            <column name="row_number" value="1"/>
+        </insert>
+        <insert tableName="main_menu_buttons">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="button_label" value="📅 Щоденне передбачення"/>
+            <column name="command" value="/daily_prediction"/>
+            <column name="is_released" valueBoolean="true"/>
+            <column name="sort_order" value="2"/>
+            <column name="row_number" value="1"/>
+        </insert>
+        <insert tableName="main_menu_buttons">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="button_label" value="⚙️ Налаштування"/>
+            <column name="command" value="/settings"/>
+            <column name="is_released" valueBoolean="true"/>
+            <column name="sort_order" value="1"/>
+            <column name="row_number" value="2"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

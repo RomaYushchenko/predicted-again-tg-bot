@@ -7,6 +7,7 @@ import java.time.format.DateTimeParseException;
 
 import com.ua.yushchenko.builder.ui.main.MainMenuButtonBuilder;
 import com.ua.yushchenko.builder.ui.settings.SettingButtonBuilder;
+import com.ua.yushchenko.service.mainmenubutton.MainMenuButtonService;
 import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.telegram.MessageSender;
 import com.ua.yushchenko.service.user.UserService;
@@ -26,6 +27,7 @@ public class TimeMessageCommand extends AbstractMessageCommand {
     private final UserService userService;
     private final SettingButtonBuilder settingButtonBuilder;
     private final MainMenuButtonBuilder mainMenuButtonBuilder;
+    private final MainMenuButtonService mainMenuButtonService;
 
     public TimeMessageCommand(final MessageSender messageSender,
                               final Message message,
@@ -33,7 +35,8 @@ public class TimeMessageCommand extends AbstractMessageCommand {
                               final BotStateManager stateManager,
                               final NotificationSchedulerService notificationSchedulerService,
                               final SettingButtonBuilder settingButtonBuilder,
-                              final MainMenuButtonBuilder mainMenuButtonBuilder) {
+                              final MainMenuButtonBuilder mainMenuButtonBuilder,
+                              final MainMenuButtonService mainMenuButtonService) {
         super(messageSender, message.getChatId());
         this.message = message;
         this.stateManager = stateManager;
@@ -41,12 +44,13 @@ public class TimeMessageCommand extends AbstractMessageCommand {
         this.userService = userService;
         this.settingButtonBuilder = settingButtonBuilder;
         this.mainMenuButtonBuilder = mainMenuButtonBuilder;
+        this.mainMenuButtonService = mainMenuButtonService;
     }
 
     @Override
     public void execute(Update update) throws TelegramApiException {
         if (!stateManager.isAwaitingTime(chatId)) {
-            messageSender.sendMessage(chatId, "Головне меню:", mainMenuButtonBuilder.build());
+            messageSender.sendMessage(chatId, "Головне меню:", mainMenuButtonBuilder.build(mainMenuButtonService.getMainMenuButtons()));
             return;
         }
 

@@ -1,12 +1,11 @@
 package com.ua.yushchenko.builder.ui.main;
 
-import static com.ua.yushchenko.command.CommandConstants.COMMAND_DAILY_PREDICTION;
-import static com.ua.yushchenko.command.CommandConstants.COMMAND_QUICK_PREDICTION;
-import static com.ua.yushchenko.command.CommandConstants.COMMAND_SETTINGS_BUTTON;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.ua.yushchenko.model.MainMenuButton;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -24,26 +23,32 @@ public class MainMenuButtonBuilder {
 
     /**
      * Build Main Menu buttons keyboard
+     *
      * @return {@link ReplyKeyboardMarkup} with Main Menu buttons
      */
-    public ReplyKeyboardMarkup build() {
+    public ReplyKeyboardMarkup build(final List<MainMenuButton> mainMenuButtons) {
         final ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
         keyboardMarkup.setOneTimeKeyboard(false);
 
-        final List<KeyboardRow> keyboard = new ArrayList<>();
+        Map<Integer, List<MainMenuButton>> groupedByRow =
+                mainMenuButtons.stream()
+                               .collect(Collectors.groupingBy(MainMenuButton::getRowNumber));
 
-        final KeyboardRow row1 = new KeyboardRow();
-        row1.add(COMMAND_QUICK_PREDICTION);
-        row1.add(COMMAND_DAILY_PREDICTION);
+        List<KeyboardRow> keyboard = new ArrayList<>();
 
-        final KeyboardRow row2 = new KeyboardRow();
-        row2.add(COMMAND_SETTINGS_BUTTON);
-
-        keyboard.add(row1);
-        keyboard.add(row2);
+        groupedByRow.keySet()
+                    .stream()
+                    .sorted()
+                    .forEach(rowNumber -> {
+                        KeyboardRow row = new KeyboardRow();
+                        groupedByRow.get(rowNumber)
+                                    .forEach(button -> row.add(button.getButtonLabel()));
+                        keyboard.add(row);
+                    });
 
         keyboardMarkup.setKeyboard(keyboard);
+
         return keyboardMarkup;
     }
 }

@@ -16,5 +16,10 @@ public enum BotState {
     /**
      * State indicating that the bot is waiting for the user to input a time for notifications.
      */
-    AWAITING_TIME
+    AWAITING_TIME,
+
+    /**
+     * State indicating that the bot is waiting for the user to input a question.
+     */
+    AWAITING_QUESTION,
 } 

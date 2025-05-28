@@ -23,6 +23,7 @@ public final class CommandConstants {
     public static final String COMMAND_QUICK_PREDICTION = "🎲 Швидке передбачення";
     public static final String COMMAND_DAILY_PREDICTION = "📅 Щоденне передбачення";
     public static final String COMMAND_SETTINGS_BUTTON = "⚙️ Налаштування";
+    public static final String COMMAND_MAGIC_BALL_BUTTON = "\uD83D\uDD2E Магічна куля";
 
     /**
      * Callback data constants used for inline keyboard buttons.
@@ -34,6 +35,7 @@ public final class CommandConstants {
     public static final String CALLBACK_REACTION_SUPER = "reaction_super_";
     public static final String CALLBACK_REACTION_FUNNY = "reaction_funny_";
     public static final String CALLBACK_REACTION_BAD = "reaction_bad_";
+    public static final String CALLBACK_BACK_TO_MAIN_MENU = "back";
 
     public static final String QUICK_PREFIX = "q_";
     public static final String DAILY_PREFIX = "d_";
@@ -46,4 +48,5 @@ public final class CommandConstants {
     public static final String BUTTON_ENABLE_NOTIFICATIONS = "🔔 Увімкнути сповіщення";
     public static final String BUTTON_DISABLE_NOTIFICATIONS = "🔕 Вимкнути сповіщення";
     public static final String BUTTON_SETTINGS = "⚙️ До налаштувань";
+    public static final String BUTTON_BACK_TO_MAIN_MENU = "\uD83C\uDFE0 До головного меню";
 }

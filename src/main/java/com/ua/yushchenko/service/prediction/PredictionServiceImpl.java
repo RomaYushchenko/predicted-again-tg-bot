@@ -49,16 +49,17 @@ public class PredictionServiceImpl implements PredictionService {
     @Override
     public Prediction generateUniquePrediction(final long chatId) {
         final User user = userService.findByChatId(chatId);
-        final List<String> top30PredictionOfUser = getTop30PredictionOfUser(user);
         final List<Prediction> allPredictions = predictionRepository.findAll();
+        final int sizeAllPredictions = allPredictions.size();
+
+        final List<String> allPredictionOfUser = getAllPredictionOfUser(user, sizeAllPredictions);
 
         Prediction prediction;
 
         do {
-            prediction = allPredictions.get(randomGenerator.nextInt(allPredictions.size()));
-        } while (top30PredictionOfUser.contains(prediction.getText()) && top30PredictionOfUser.size() > 1);
+            prediction = allPredictions.get(randomGenerator.nextInt(sizeAllPredictions));
+        } while (allPredictionOfUser.contains(prediction.getText()) && allPredictionOfUser.size() > 1);
 
-        userService.saveLastPrediction(chatId, prediction.getText());
         return prediction;
     }
 
@@ -72,18 +73,18 @@ public class PredictionServiceImpl implements PredictionService {
         userPredictionRepository.save(userPrediction);
     }
 
-    private List<String> getTop30PredictionOfUser(final User user) {
-        final List<UserPrediction> predictions = userPredictionRepository.findTop30ByUserOrderBySentAtDesc(user);
+    private List<String> getAllPredictionOfUser(final User user, final int sizeAllPredictions) {
+        final List<UserPrediction> userPredictions = userPredictionRepository.findAllByUserOrderBySentAtDesc(user);
 
-        return predictions.size() == 30
-                ? cleanPredictionsForUser(predictions)
-                : predictions.stream()
-                             .map(UserPrediction::getPrediction)
-                             .toList();
+        return userPredictions.size() >= sizeAllPredictions
+                ? cleanPredictionsForUser(userPredictions)
+                : userPredictions.stream()
+                                 .map(UserPrediction::getPrediction)
+                                 .toList();
     }
 
-    private List<String> cleanPredictionsForUser(final List<UserPrediction> predictions) {
-        userPredictionRepository.deleteAll(predictions);
+    private List<String> cleanPredictionsForUser(final List<UserPrediction> userPredictions) {
+        userPredictionRepository.deleteAll(userPredictions);
         return Collections.emptyList();
     }
 } 

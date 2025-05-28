@@ -25,4 +25,10 @@ public interface UserPredictionRepository extends JpaRepository<UserPrediction, 
      * @return list of User Predictions
      */
     List<UserPrediction> findAllByUserOrderBySentAtDesc(final User user);
+
+    /**
+     * Delete {@link UserPrediction} by {@link User}
+     * @param user instance of User
+     */
+    void deleteAllByUser(final User user);
 }

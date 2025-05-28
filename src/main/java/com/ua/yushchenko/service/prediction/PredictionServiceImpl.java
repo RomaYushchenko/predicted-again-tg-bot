@@ -2,8 +2,10 @@ package com.ua.yushchenko.service.prediction;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.ua.yushchenko.common.SplitMix64RandomGenerator;
 import com.ua.yushchenko.model.Prediction;
@@ -38,34 +40,44 @@ public class PredictionServiceImpl implements PredictionService {
         final String lastPrediction = userService.getLastPrediction(chatId);
         final List<Prediction> allPredictions = predictionRepository.findAll();
 
-        Prediction prediction;
-        do {
-            prediction = allPredictions.get(randomGenerator.nextInt(allPredictions.size()));
-        } while (prediction.getText().equals(lastPrediction) && allPredictions.size() > 1);
+        if (allPredictions.size() <= 1) {
+            return allPredictions.get(0);
+        }
 
-        return prediction;
+        final List<Prediction> filtered = allPredictions.stream()
+                                                        .filter(p -> !p.getText().equals(lastPrediction))
+                                                        .toList();
+
+        if (filtered.isEmpty()) {
+            return allPredictions.get(0);
+        }
+
+        return filtered.get(randomGenerator.nextInt(filtered.size()));
     }
+
 
     @Override
     public Prediction generateUniquePrediction(final long chatId) {
         final User user = userService.findByChatId(chatId);
         final List<Prediction> allPredictions = predictionRepository.findAll();
-        final int sizeAllPredictions = allPredictions.size();
+        final int totalPredictions = allPredictions.size();
 
-        final List<String> allPredictionOfUser = getAllPredictionOfUser(user, sizeAllPredictions);
+        final Set<String> userPredictions = new HashSet<>(getAllPredictionOfUser(user));
 
-        Prediction prediction;
+        if (userPredictions.size() >= totalPredictions) {
+            userPredictionRepository.deleteAllByUser(user);
+            userPredictions.clear();
+        }
 
-        do {
-            prediction = allPredictions.get(randomGenerator.nextInt(sizeAllPredictions));
-        } while (allPredictionOfUser.contains(prediction.getText()) && allPredictionOfUser.size() > 1);
-
-        return prediction;
+        return allPredictions.stream()
+                             .filter(p -> !userPredictions.contains(p.getText()))
+                             .findAny()
+                             .orElseThrow(() -> new IllegalStateException("No unique predictions available"));
     }
 
     @Override
     public void saveUserPrediction(final User user, final String prediction) {
-        final UserPrediction userPrediction = new UserPrediction();
+        final var userPrediction = new UserPrediction();
         userPrediction.setUser(user);
         userPrediction.setPrediction(prediction);
         userPrediction.setSentAt(LocalDateTime.now());
@@ -73,18 +85,11 @@ public class PredictionServiceImpl implements PredictionService {
         userPredictionRepository.save(userPrediction);
     }
 
-    private List<String> getAllPredictionOfUser(final User user, final int sizeAllPredictions) {
-        final List<UserPrediction> userPredictions = userPredictionRepository.findAllByUserOrderBySentAtDesc(user);
-
-        return userPredictions.size() >= sizeAllPredictions
-                ? cleanPredictionsForUser(userPredictions)
-                : userPredictions.stream()
-                                 .map(UserPrediction::getPrediction)
-                                 .toList();
+    private List<String> getAllPredictionOfUser(final User user) {
+        return userPredictionRepository.findAllByUserOrderBySentAtDesc(user)
+                                       .stream()
+                                       .map(UserPrediction::getPrediction)
+                                       .toList();
     }
 
-    private List<String> cleanPredictionsForUser(final List<UserPrediction> userPredictions) {
-        userPredictionRepository.deleteAll(userPredictions);
-        return Collections.emptyList();
-    }
 } 

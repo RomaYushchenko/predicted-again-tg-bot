@@ -24,5 +24,5 @@ public interface UserPredictionRepository extends JpaRepository<UserPrediction, 
      * @param user instance of User
      * @return list of User Predictions
      */
-    List<UserPrediction> findTop30ByUserOrderBySentAtDesc(final User user);
+    List<UserPrediction> findAllByUserOrderBySentAtDesc(final User user);
 }

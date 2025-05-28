@@ -70,7 +70,9 @@ public class NotificationJob implements Job {
                                           prediction.getText(),
                                           reactionButtonBuilder.buildKeyboard(chatId, prediction.getId(), DAILY_PREFIX));
 
+                user.setLastPrediction(prediction.getText());
                 user.setLastNotificationTime(now.plusHours(predictionTimeZone));
+
                 userService.save(user);
                 predictionService.saveUserPrediction(user, prediction.getText());
 

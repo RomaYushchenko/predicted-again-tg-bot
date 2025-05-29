@@ -69,10 +69,15 @@ public class PredictionServiceImpl implements PredictionService {
             userPredictions.clear();
         }
 
-        return allPredictions.stream()
-                             .filter(p -> !userPredictions.contains(p.getText()))
-                             .findAny()
-                             .orElseThrow(() -> new IllegalStateException("No unique predictions available"));
+        final List<Prediction> filtered = allPredictions.stream()
+                                                        .filter(p -> !userPredictions.contains(p.getText()))
+                                                        .toList();
+
+        if (filtered.isEmpty()) {
+            return allPredictions.get(0);
+        }
+
+        return filtered.get(randomGenerator.nextInt(filtered.size()));
     }
 
     @Override

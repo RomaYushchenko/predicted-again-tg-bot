@@ -46,11 +46,8 @@ public class BotInitializer {
     public TelegramBotsApi telegramBotsApi() throws TelegramApiException {
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
         try {
-            SetWebhook setWebhook = SetWebhook.builder()
-                                             .url(botSettings.getWebhookUrl())
-                                             .build();
-            bot.setWebhook(setWebhook);
-            telegramBotsApi.registerBot(bot, setWebhook);
+            bot.setWebhook(setWebhookInstance());
+            telegramBotsApi.registerBot(bot, setWebhookInstance());
             log.info("Webhook registered at {}", botSettings.getWebhookUrl());
         } catch (TelegramApiException e) {
             log.error("Error occurred: " + e.getMessage());

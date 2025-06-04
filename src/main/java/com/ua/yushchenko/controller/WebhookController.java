@@ -14,7 +14,7 @@ public class WebhookController {
 
     private final TelegramBot telegramBot;
 
-    @PostMapping("${bot.webhook-path}")
+    @PostMapping("/callback${bot.webhook-path}")
     public BotApiMethod<?> onUpdate(@RequestBody Update update) {
         return telegramBot.onWebhookUpdateReceived(update);
     }

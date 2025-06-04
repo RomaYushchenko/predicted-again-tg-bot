@@ -27,6 +27,8 @@ public class BotConfig {
         BotSettings settings = new BotSettings();
         settings.setName(dotenv.get("BOT_NAME"));
         settings.setToken(dotenv.get("BOT_TOKEN"));
+        settings.setWebhookPath(dotenv.get("WEBHOOK_PATH"));
+        settings.setWebhookUrl(dotenv.get("TELEGRAM_BOT_WEB_HOOK_URL"));
         return settings;
     }
 
@@ -38,5 +40,7 @@ public class BotConfig {
     public static class BotSettings {
         private String name;
         private String token;
+        private String webhookPath;
+        private String webhookUrl;
     }
-} 
+}

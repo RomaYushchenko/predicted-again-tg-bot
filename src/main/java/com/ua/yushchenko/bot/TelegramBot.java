@@ -13,7 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.bots.TelegramWebhookBot;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -33,15 +34,15 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TelegramBot extends TelegramLongPollingBot {
+public class TelegramBot extends TelegramWebhookBot {
 
     @Getter
-    @Value("${bot.name}")
-    private String botUsername;
+    private final String botUsername;
 
     @Getter
-    @Value("${bot.token}")
-    private String botToken;
+    private final String botToken;
+
+    private final String botPath;
 
     private final MessageSender messageSender;
     private final CommandFactory commandFactory;
@@ -56,9 +57,11 @@ public class TelegramBot extends TelegramLongPollingBot {
     public TelegramBot(final BotSettings botSettings,
                        final MessageSender messageSender,
                        final CommandFactory commandFactory) {
-        super(botSettings.getToken());
         this.messageSender = messageSender;
         this.commandFactory = commandFactory;
+        this.botUsername = botSettings.getName();
+        this.botToken = botSettings.getToken();
+        this.botPath = botSettings.getWebhookPath();
         log.info("TelegramBot initialized with name: {}", botSettings.getName());
     }
 
@@ -83,14 +86,24 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
+    @Override
+    public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
+        processUpdate(update);
+        return null;
+    }
+
+    @Override
+    public String getBotPath() {
+        return botPath;
+    }
+
     /**
      * Handles incoming updates from Telegram.
      * Processes messages and callback queries.
      *
      * @param update the update from Telegram
      */
-    @Override
-    public void onUpdateReceived(Update update) {
+    private void processUpdate(Update update) {
         try {
             if (update.hasMessage()) {
                 if (update.getMessage().hasText()) {

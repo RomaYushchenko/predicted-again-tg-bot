@@ -55,7 +55,7 @@ public class QuickPredictionCommand extends AbstractMessageCommand {
 
     @Override
     public String getCommandName() {
-        return "/predict";
+        return "/quick";
     }
 
     @Override

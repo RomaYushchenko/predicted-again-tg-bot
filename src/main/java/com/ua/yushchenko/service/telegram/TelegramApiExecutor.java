@@ -19,8 +19,7 @@ public interface TelegramApiExecutor {
      * @param method the method to execute
      * @param <T> the type of the response
      * @param <Method> the type of the method
-     * @return the result of the method execution
      * @throws TelegramApiException if there is an error executing the method
      */
-    <T extends Serializable, Method extends BotApiMethod<T>> T execute(Method method) throws TelegramApiException;
+    <T extends Serializable, Method extends BotApiMethod<T>> void execute(Method method) throws TelegramApiException;
 } 

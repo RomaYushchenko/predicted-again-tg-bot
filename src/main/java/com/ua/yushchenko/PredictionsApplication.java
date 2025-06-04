@@ -11,7 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author AI
  * @version 0.1-beta
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.ua.yushchenko")
 public class PredictionsApplication {
 
     static {

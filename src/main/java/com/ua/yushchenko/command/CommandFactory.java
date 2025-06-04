@@ -9,6 +9,7 @@ import static com.ua.yushchenko.command.CommandConstants.CALLBACK_SETTINGS;
 import static com.ua.yushchenko.command.CommandConstants.CALLBACK_TOGGLE_NOTIFICATIONS;
 import static com.ua.yushchenko.command.CommandConstants.COMMAND_DAILY;
 import static com.ua.yushchenko.command.CommandConstants.COMMAND_DAILY_PREDICTION;
+import static com.ua.yushchenko.command.CommandConstants.COMMAND_MAGIC_BALL_BUTTON;
 import static com.ua.yushchenko.command.CommandConstants.COMMAND_QUICK;
 import static com.ua.yushchenko.command.CommandConstants.COMMAND_QUICK_PREDICTION;
 import static com.ua.yushchenko.command.CommandConstants.COMMAND_SETTINGS;
@@ -17,12 +18,15 @@ import static com.ua.yushchenko.command.CommandConstants.COMMAND_START;
 
 import java.util.Map;
 
+import com.ua.yushchenko.builder.ui.magicball.MagicBallButtonBuilder;
 import com.ua.yushchenko.builder.ui.main.MainMenuButtonBuilder;
 import com.ua.yushchenko.builder.ui.prediction.DailyPredictionButtonBuilder;
 import com.ua.yushchenko.builder.ui.prediction.QuickPredictionButtonBuilder;
 import com.ua.yushchenko.builder.ui.reaction.ReactionButtonBuilder;
 import com.ua.yushchenko.builder.ui.settings.SettingButtonBuilder;
+import com.ua.yushchenko.events.MagicBallKafkaProducer;
 import com.ua.yushchenko.model.ReactionType;
+import com.ua.yushchenko.service.client.ChatGptServiceClient;
 import com.ua.yushchenko.service.mainmenubutton.MainMenuButtonService;
 import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.prediction.PredictionService;
@@ -60,6 +64,8 @@ public class CommandFactory {
     private final SettingButtonBuilder settingButtonBuilder;
     private final MainMenuButtonBuilder mainMenuButtonBuilder;
     private final MainMenuButtonService mainMenuButtonService;
+    private final MagicBallButtonBuilder magicBallButtonBuilder;
+    private final MagicBallKafkaProducer magicBallKafkaProducer;
 
     private static final Logger log = LoggerFactory.getLogger(CommandFactory.class);
 
@@ -87,7 +93,9 @@ public class CommandFactory {
                           final DailyPredictionButtonBuilder dailyPredictionButtonBuilder,
                           final SettingButtonBuilder settingButtonBuilder,
                           final MainMenuButtonBuilder mainMenuButtonBuilder,
-                          final MainMenuButtonService mainMenuButtonService) {
+                          final MainMenuButtonService mainMenuButtonService,
+                          final MagicBallButtonBuilder magicBallButtonBuilder,
+                          final MagicBallKafkaProducer magicBallKafkaProducer) {
         this.messageSender = messageSender;
         this.predictionService = predictionService;
         this.notificationSchedulerService = notificationSchedulerService;
@@ -100,6 +108,8 @@ public class CommandFactory {
         this.settingButtonBuilder = settingButtonBuilder;
         this.mainMenuButtonBuilder = mainMenuButtonBuilder;
         this.mainMenuButtonService = mainMenuButtonService;
+        this.magicBallButtonBuilder = magicBallButtonBuilder;
+        this.magicBallKafkaProducer = magicBallKafkaProducer;
     }
 
     /**
@@ -126,6 +136,10 @@ public class CommandFactory {
                                           mainMenuButtonBuilder, mainMenuButtonService);
         }
 
+        if (stateManager.isAwaitingQuestion(chatId)) {
+            return new MagicBallUserQuestionCommand(messageSender, chatId, magicBallKafkaProducer);
+        }
+
         // Спочатку перевіряємо команди з емодзі
         if (text.equals(COMMAND_QUICK_PREDICTION)) {
             return new QuickPredictionCommand(messageSender, chatId, predictionService, quickPredictionButtonBuilder);
@@ -135,6 +149,9 @@ public class CommandFactory {
         }
         if (text.equals(COMMAND_SETTINGS_BUTTON)) {
             return new SettingsCommand(messageSender, chatId, userService, stateManager, settingButtonBuilder);
+        }
+        if (text.equals(COMMAND_MAGIC_BALL_BUTTON)) {
+            return new MagicBallCommand(messageSender, chatId, stateManager, magicBallButtonBuilder);
         }
 
         // Потім перевіряємо звичайні команди

@@ -1,6 +1,7 @@
 package com.ua.yushchenko.config;
 
 import com.ua.yushchenko.bot.TelegramBot;
+import com.ua.yushchenko.builder.ui.magicball.MagicBallButtonBuilder;
 import com.ua.yushchenko.builder.ui.main.MainMenuButtonBuilder;
 import com.ua.yushchenko.builder.ui.prediction.DailyPredictionButtonBuilder;
 import com.ua.yushchenko.builder.ui.prediction.QuickPredictionButtonBuilder;
@@ -8,9 +9,11 @@ import com.ua.yushchenko.builder.ui.reaction.ReactionButtonBuilder;
 import com.ua.yushchenko.builder.ui.settings.SettingButtonBuilder;
 import com.ua.yushchenko.command.CommandFactory;
 import com.ua.yushchenko.common.SplitMix64RandomGenerator;
+import com.ua.yushchenko.events.MagicBallKafkaProducer;
 import com.ua.yushchenko.repository.PredictionRepository;
 import com.ua.yushchenko.repository.UserPredictionRepository;
 import com.ua.yushchenko.repository.UserRepository;
+import com.ua.yushchenko.service.client.ChatGptServiceClient;
 import com.ua.yushchenko.service.mainmenubutton.MainMenuButtonService;
 import com.ua.yushchenko.service.notification.NotificationSchedulerService;
 import com.ua.yushchenko.service.prediction.PredictionService;
@@ -115,11 +118,15 @@ public class BotConfiguration {
                                          final DailyPredictionButtonBuilder dailyPredictionButtonBuilder,
                                          final SettingButtonBuilder settingButtonBuilder,
                                          final MainMenuButtonBuilder mainMenuButtonBuilder,
-                                         final MainMenuButtonService mainMenuButtonService) {
+                                         final MainMenuButtonService mainMenuButtonService,
+                                         final MagicBallButtonBuilder magicBallButtonBuilder,
+                                         final MagicBallKafkaProducer magicBallKafkaProducer) {
         return new CommandFactory(messageSender, predictionService, notificationSchedulerService, stateManager,
                                   userService, reactionService, reactionButtonBuilder, quickPredictionButtonBuilder,
                                   dailyPredictionButtonBuilder, settingButtonBuilder,
-                                  mainMenuButtonBuilder, mainMenuButtonService);
+                                  mainMenuButtonBuilder, mainMenuButtonService,
+                                  magicBallButtonBuilder,
+                                  magicBallKafkaProducer);
     }
 
     /**

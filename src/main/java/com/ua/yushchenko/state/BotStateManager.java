@@ -18,6 +18,10 @@ public class BotStateManager {
         userStates.put(chatId, BotState.AWAITING_TIME);
     }
 
+    public void setAwaitingQuestionState(long chatId) {
+        userStates.put(chatId, BotState.AWAITING_QUESTION);
+    }
+
     public void clearState(long chatId) {
         userStates.remove(chatId);
     }
@@ -28,5 +32,9 @@ public class BotStateManager {
 
     public boolean isAwaitingTime(long chatId) {
         return getState(chatId) == BotState.AWAITING_TIME;
+    }
+
+    public boolean isAwaitingQuestion(long chatId) {
+        return getState(chatId) == BotState.AWAITING_QUESTION;
     }
 } 

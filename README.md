@@ -61,6 +61,8 @@ src/
 ```
 BOT_NAME=your_bot_name
 BOT_TOKEN=your_bot_token
+WEBHOOK_URL=https://your-domain.com/bot
+WEBHOOK_PATH=/bot
 DATABASE_URL=postgresql://user:password@host:5432/database
 PORT=8080
 SPRING_PROFILES_ACTIVE=prod

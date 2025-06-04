@@ -3,6 +3,8 @@ package com.ua.yushchenko;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * Main application class for the Predictions Telegram Bot.
@@ -11,6 +13,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author AI
  * @version 0.1-beta
  */
+@EnableRetry
+@EnableAsync
 @SpringBootApplication(scanBasePackages = "com.ua.yushchenko")
 public class PredictionsApplication {
 
